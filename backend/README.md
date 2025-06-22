@@ -8,7 +8,7 @@ FastAPI middleware for comprehensive request/response logging.
 pip install -e .
 ```
 
-## Usage
+## Dream Usage
 
 ```python
 from fastapi import FastAPI
@@ -30,26 +30,4 @@ async def create_user(user_data: dict):
 
 ## What it logs:
 
-- **Request details**: Method, URL, headers, client IP, user agent
-- **Request body**: For POST/PUT/PATCH requests
-- **Response details**: Status code, headers, processing time
-- **Timing**: Request processing time in milliseconds
-
-## Example log output:
-
-```
-2024-01-15 10:30:15,123 - api_logger - INFO - REQUEST: {
-  "method": "POST",
-  "url": "http://localhost:8000/users",
-  "headers": {...},
-  "client_ip": "127.0.0.1",
-  "user_agent": "Mozilla/5.0...",
-  "body": "{\"name\": \"John\"}"
-}
-
-2024-01-15 10:30:15,145 - api_logger - INFO - RESPONSE: {
-  "status_code": 200,
-  "headers": {...},
-  "process_time_ms": 22.5
-}
-``` 
+- **Request details**: Nothing yet
