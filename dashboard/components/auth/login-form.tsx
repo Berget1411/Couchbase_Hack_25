@@ -50,53 +50,70 @@ export function LoginForm() {
     }
   };
 
+  const signInWithGoogle = async () => {
+    const data = await authClient.signIn.social({
+      provider: "google",
+    });
+
+    if (data) {
+      toast.success("Signed in with Google");
+      redirect("/dashboard");
+    }
+  };
+
   return (
     <Card className='w-full max-w-md mx-auto'>
       <CardHeader className='text-center'>
         <CardTitle className='text-2xl font-bold'>Welcome back</CardTitle>
-        <CardDescription>
-          Let&apos;s continue your learning journey.
-        </CardDescription>
+        <CardDescription>Let&apos;s debug your code.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className='grid gap-6'>
-              <div className='grid gap-3'>
-                <FormField
-                  control={form.control}
-                  name='email'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder='m@example.com'
-                          required
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+        <div className='grid gap-6'>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <div className='grid gap-6'>
+                <div className='grid gap-3'>
+                  <FormField
+                    control={form.control}
+                    name='email'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder='m@example.com'
+                            required
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <Button type='submit' className='w-full'>
-                Continue
-              </Button>
-              <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
-                <span className='bg-background text-muted-foreground relative z-10 px-2'>
-                  Or continue with
-                </span>
+                <Button type='submit' className='w-full'>
+                  Continue
+                </Button>
               </div>
-              <Button variant='outline' className='w-full py-5'>
-                <FaGoogle />
-                Continue with Google
-              </Button>
-            </div>
-          </form>
-        </Form>
+            </form>
+          </Form>
+
+          <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
+            <span className='bg-card text-muted-foreground relative z-10 px-2'>
+              Or continue with
+            </span>
+          </div>
+
+          <Button
+            variant='outline'
+            className='w-full py-5 z-10'
+            onClick={signInWithGoogle}
+          >
+            <FaGoogle />
+            Continue with Google
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
