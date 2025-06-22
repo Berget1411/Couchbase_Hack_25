@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "smartpylogger"
 version = "0.1.0"
-description = "FastAPI middleware for comprehensive request/response logging"
+description = "Client for API logging with authentication"
 dependencies = [
     "fastapi>=0.68.0",
     "uvicorn>=0.15.0",
