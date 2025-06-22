@@ -22,6 +22,18 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
+  user: {
+    additionalFields: {
+      apiKey: {
+        type: "string",
+        required: true,
+        defaultValue: () => {
+          // Generate a random API key using crypto
+          return crypto.randomUUID();
+        },
+      },
+    },
+  },
   plugins: [
     nextCookies(),
     emailOTP({

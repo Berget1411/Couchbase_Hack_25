@@ -19,6 +19,7 @@ model User {
   email         String
   emailVerified Boolean
   image         String?
+  apiKey        String    @unique @default(cuid())
   createdAt     DateTime
   updatedAt     DateTime
   sessions      Session[]
