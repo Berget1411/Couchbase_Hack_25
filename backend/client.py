@@ -1,5 +1,11 @@
 """
 Client for connecting to your API endpoint with authentication
+
+Handles:
+- User authentication (API keys)
+- Schema storage/retrieval  
+- Dashboard API endpoints
+- Chatbot integration
 """
 
 import requests
@@ -12,14 +18,16 @@ class APIClient:
     def __init__(self, base_url: str, api_key: str):
         pass
 
-class AuthManager:
-    """Handles user auth (done in node.js. buit we need to do it here too)"""
 
+class AuthManager:
+    """Handle user authentication"""
+    
     def __init__(self, auth_url: str):
         pass
 
-class SmartPyLogger:
-    """The Main client class"""
 
+class SmartPyLogger:
+    """Main client class"""
+    
     def __init__(self, api_url: str, auth_url: str):
         pass
