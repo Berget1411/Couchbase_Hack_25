@@ -53,10 +53,12 @@ export function LoginForm() {
   const signInWithGithub = async () => {
     const data = await authClient.signIn.social({
       provider: "github",
+      callbackURL: "/dashboard",
     });
 
     if (data) {
-      toast.success("Signed in with Google");
+      console.log("Social login data:", data);
+      toast.success("Signed in with Github");
       redirect("/dashboard");
     }
   };
