@@ -68,20 +68,17 @@ async def validate_api_key_client(api_key: str):
 
 ### ---- DASHBOARD ENDPOINTS: Dashboard -> API ---- ###
 
-@app.post("/dashboard/requests")
-async def get_user_requests(request: DashboardRequest):
-    """Get requests for specific user (dashboard calls this)"""
-    pass
-
 @app.post("/dashboard/chat/message")
 async def chat_message(message: ChatMessage):
     """Handle chatbot messages from dashboard"""
     pass
 
+# Might not be needed:
 @app.get("/dashboard/users")
 async def get_users():
     """Get all users (for dashboard admin)"""
     pass
+
 
 ### ---- DASHBOARD DB CONNECTION + USER SYNC ---- ###
 
