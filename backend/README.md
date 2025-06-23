@@ -33,7 +33,7 @@ async def create_user(user_data: dict):
 
 - **Request details**: Nothing yet
 
-# Set up backend environment:
+## Set up backend environment:
 
 pip install uv
 uv venv
@@ -42,7 +42,7 @@ source .venv/bin/activate
 uv pip install -r requirements.txt
 
 
-# Run:
+## Run:
 docker-compose up -d  # With Docker
-# OR:
+## OR:
 python api_server.py  # Local
