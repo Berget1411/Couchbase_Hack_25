@@ -77,6 +77,12 @@ async def get_users():
     """Get all users (for dashboard admin)"""
     pass
 
+### DET ÄR DENNA LUDVIG:
+@app.post("/dashboard/send-requests")
+async def push_requests_to_dashboard(user_id: str, api_key: str):
+    """Send request data TO THE FUCKING dashboard"""
+    pass
+
 # Health checkinggggg
 @app.get("/health")
 async def health_check():
