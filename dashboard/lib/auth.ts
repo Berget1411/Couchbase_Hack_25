@@ -16,10 +16,10 @@ export const auth = betterAuth({
     autoSignIn: true,
   },
   socialProviders: {
-    google: {
+    github: {
       enabled: true,
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     },
   },
   user: {

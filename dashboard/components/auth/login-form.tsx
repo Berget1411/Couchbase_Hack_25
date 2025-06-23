@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { loginSchema, LoginSchema } from "@/validate/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FaGoogle } from "react-icons/fa";
+import { FaGithub } from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -50,9 +50,9 @@ export function LoginForm() {
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGithub = async () => {
     const data = await authClient.signIn.social({
-      provider: "google",
+      provider: "github",
     });
 
     if (data) {
@@ -108,10 +108,10 @@ export function LoginForm() {
           <Button
             variant='outline'
             className='w-full py-5 z-10'
-            onClick={signInWithGoogle}
+            onClick={signInWithGithub}
           >
-            <FaGoogle />
-            Continue with Google
+            <FaGithub />
+            Continue with Github
           </Button>
         </div>
       </CardContent>
