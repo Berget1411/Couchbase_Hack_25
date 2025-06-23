@@ -6,20 +6,24 @@ import {
   IconChartBar,
   IconDashboard,
   IconDatabase,
+  IconGraph,
   IconFileAi,
   IconFileDescription,
+  IconFileText,
   IconFileWord,
-  IconFolder,
   IconHelp,
   IconInnerShadowTop,
-  IconListDetails,
+  IconMail,
+  IconSparkles,
   IconReport,
   IconSearch,
   IconSettings,
   IconUsers,
+  IconListDetails,
+  IconFolder,
 } from "@tabler/icons-react";
 
-import { NavDocuments } from "@/components/sidebar/nav-documents";
+import { NavApps } from "@/components/sidebar/nav-apps";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavSecondary } from "@/components/sidebar/nav-secondary";
 import { NavUser } from "@/components/sidebar/nav-user";
@@ -46,25 +50,25 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
+      title: "Ask AI",
       url: "#",
-      icon: IconListDetails,
+      icon: IconSparkles,
     },
     {
-      title: "Analytics",
+      title: "Documentation",
       url: "#",
-      icon: IconChartBar,
+      icon: IconFileText,
     },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
-    },
+    // {
+    //   title: "Analytics",
+    //   url: "#",
+    //   icon: IconChartBar,
+    // },
+    // {
+    //   title: "Team",
+    //   url: "#",
+    //   icon: IconUsers,
+    // },
   ],
   navClouds: [
     {
@@ -131,21 +135,21 @@ const data = {
       icon: IconSearch,
     },
   ],
-  documents: [
+  apps: [
     {
-      name: "Data Library",
+      name: "GraphRag",
       url: "#",
-      icon: IconDatabase,
+      icon: IconFolder,
     },
     {
-      name: "Reports",
+      name: "AI Todo App",
       url: "#",
-      icon: IconReport,
+      icon: IconFolder,
     },
     {
-      name: "Word Assistant",
+      name: "Ai Email Assistant App",
       url: "#",
-      icon: IconFileWord,
+      icon: IconFolder,
     },
   ],
 };
@@ -170,7 +174,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        <NavApps items={data.apps} />
         <NavSecondary items={data.navSecondary} className='mt-auto' />
       </SidebarContent>
       <SidebarFooter>
