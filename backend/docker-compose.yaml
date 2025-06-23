@@ -6,23 +6,30 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://admin:admin@postgres:5432/dashboard_db
+      - DB_HOST=postgres
+      - DB_NAME=smartpylogger_db
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_PORT=5432
       - API_KEY_SECRET=your-secret-key
     depends_on:
       - postgres
     volumes:
       - ./logs:/app/logs
+    restart: unless-stopped
 
   postgres:
     image: postgres:15
+    container_name: smartpylogger_postgres
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: dashboard_db
+      POSTGRES_DB: smartpylogger_db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
 volumes:
   postgres_data: 
