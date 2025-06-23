@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import psycopg2
 import os
+from typing import Optional, List
 
 app = FastAPI(title="SmartPyLogger API", version="1.0.0")
 
@@ -30,21 +31,15 @@ def get_db_connection():
         port=os.getenv("DB_PORT", "5432")
     )
 
-### ---- Pydantic models for typesafety SER DU LUDVIG PYTHON KAN VISST VA TYPESAFE ---- ###
-# SchemaData is the data from the SmartPyLogger client
+### ---- Pydantic models for typesafety ---- ###
 class SchemaData(BaseModel):
     request_data: dict
 
-# DashboardRequest is the data from the dashboard
 class DashboardRequest(BaseModel):
     user_id: str
     api_key: str
-
-# ChatMessage is the data from the chatbot
-class ChatMessage(BaseModel):
-    message: str
-    user_id: str
-    api_key: str
+    request_ids: Optional[List[int]] = None  # Selected rows
+    chat_message: Optional[str] = None        # LLM analysis request
 
 class UserRegistration(BaseModel):
     ### Unsure which fields are needed here, well figure out when we get schema done
@@ -52,6 +47,10 @@ class UserRegistration(BaseModel):
     email: str
     api_key: str
     user_id: str
+
+class PushNewRequests(BaseModel):
+    user_id: str
+    api_key: str
 
 ### ---- CLIENT ENDPOINTS: SmartPyLogger -> API ---- ###
 
@@ -68,58 +67,44 @@ async def validate_api_key_client(api_key: str):
 
 ### ---- DASHBOARD ENDPOINTS: Dashboard -> API ---- ###
 
-@app.post("/dashboard/chat/message")
-async def chat_message(message: ChatMessage):
-    """Handle chatbot messages from dashboard"""
+@app.post("/dashboard/register-user")
+async def register_user_from_dashboard(user_data: UserRegistration):
+    """
+    Sync user with backend requests db. Adding new user_id in the user_id col or api_key instead
+    """
     pass
 
-# Might not be needed:
+@app.post("/dashboard/send-requests")
+async def push_selected_requests_response(request: DashboardRequest):
+    """
+    Unified endpoint for dashboard requests:
+    - No request_ids + no chat_message = Return no requests
+    - With request_ids + no chat_message = Feed to LLM and revert to standard prompt to summarize what they are likely to mean  
+    - With request_ids + chat_message = Return selected requests + LLM analysis with regard to ur query
+    """
+    pass
+
 @app.get("/dashboard/users")
 async def get_users():
     """Get all users (for dashboard admin)"""
     pass
 
-
-### ---- DASHBOARD DB CONNECTION + USER SYNC ---- ###
-
-@app.post("/dashboard/register-user")
-async def register_user_from_dashboard(user_data: dict):
+@app.post("/dashboard/push-new-requests")
+async def push_new_requests_to_frontend(request: PushNewRequests):
     """
-    Sync user with backend requests db.
+    Push new request rows to frontend for real-time updates.
+    Called when new requests arrive from SmartPyLogger clients.
     """
     pass
 
-"""
-User sync flow:
-
-Dashboard Registration -> POST /dashboard/register-user -> Backend Database (new user id for requests)
-                                    I
-User gets API key -> SmartPyLogger uses API key -> Requests stored with user_id
-"""
-
-@app.post("/dashboard/send-requests")
-async def push_requests_to_dashboard(user_id: str, api_key: str):
-    """
-    Send request data TO THE FUCKING dashboard.
-    
-    Accesses the requests db type shit and sends to dashboard for display.
-    """
-    pass
-
-"""
-Data flow:
-
-SmartPyLogger -> POST /api/schemas -> Database
-                                    I
-Dashboard -> POST /dashboard/send-requests <- API Server (gets data from DB)
-"""
-
-
-# Health checkinggggg
+# Health check
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     pass
+
+
+### OBS AROUND HERE IMPORT DB HELPER FNS FROM CLIENT.PY
 
 if __name__ == "__main__":
     import uvicorn
