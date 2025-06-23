@@ -46,6 +46,12 @@ class ChatMessage(BaseModel):
     user_id: str
     api_key: str
 
+class UserRegistration(BaseModel):
+    ### Unsure which fields are needed here, well figure out when we get schema done
+    username: str
+    email: str
+    api_key: str
+    user_id: str
 
 ### ---- CLIENT ENDPOINTS: SmartPyLogger -> API ---- ###
 
@@ -77,11 +83,40 @@ async def get_users():
     """Get all users (for dashboard admin)"""
     pass
 
-### DET ÄR DENNA LUDVIG:
+### ---- DASHBOARD DB CONNECTION + USER SYNC ---- ###
+
+@app.post("/dashboard/register-user")
+async def register_user_from_dashboard(user_data: dict):
+    """
+    Sync user with backend requests db.
+    """
+    pass
+
+"""
+User sync flow:
+
+Dashboard Registration -> POST /dashboard/register-user -> Backend Database (new user id for requests)
+                                    I
+User gets API key -> SmartPyLogger uses API key -> Requests stored with user_id
+"""
+
 @app.post("/dashboard/send-requests")
 async def push_requests_to_dashboard(user_id: str, api_key: str):
-    """Send request data TO THE FUCKING dashboard"""
+    """
+    Send request data TO THE FUCKING dashboard.
+    
+    Accesses the requests db type shit and sends to dashboard for display.
+    """
     pass
+
+"""
+Data flow:
+
+SmartPyLogger -> POST /api/schemas -> Database
+                                    I
+Dashboard -> POST /dashboard/send-requests <- API Server (gets data from DB)
+"""
+
 
 # Health checkinggggg
 @app.get("/health")
