@@ -13,7 +13,7 @@ from typing import Dict, Any, Optional
 
 
 class APIClient:
-    """Minimal API client with authentication"""
+    """Minimal API client connection"""
     
     def __init__(self, base_url: str, api_key: str):
         pass

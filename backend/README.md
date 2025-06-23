@@ -19,6 +19,7 @@ app = FastAPI()
 # Add logging middleware
 setup_logging_middleware(app, logger_name="my_api_logger")
 
+# All ur vibe coded bullshit ass endpoints:
 @app.get("/users")
 async def get_users():
     return {"users": ["John", "Jane"]}
