@@ -1,11 +1,7 @@
 """
-Client for connecting to your API endpoint with authentication
 
-Handles:
-- User authentication (API keys)
-- Schema storage/retrieval  
-- Dashboard API endpoints
-- Chatbot integration
+Pretty much a utils file for random stuffs
+
 """
 
 import requests

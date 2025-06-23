@@ -31,6 +31,7 @@ def get_db():
 @app.post("/api/auth/validate")
 async def validate_api_key_client(api_key: str):
     # Validates SmartPyLogger API keys
+    # Will probably call a client.py fn and iterate thru rows in user table
     return {"valid": True}
 
 @app.post("/api/schemas")
