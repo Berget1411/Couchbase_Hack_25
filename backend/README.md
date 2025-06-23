@@ -44,5 +44,5 @@ uv pip install -r requirements.txt
 
 ## Run:
 docker-compose up -d  # With Docker
-## OR:
+### Or:
 python api_server.py  # Local
