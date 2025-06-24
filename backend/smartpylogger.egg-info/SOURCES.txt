@@ -7,4 +7,5 @@ smartpylogger.egg-info/dependency_links.txt
 smartpylogger.egg-info/entry_points.txt
 smartpylogger.egg-info/requires.txt
 smartpylogger.egg-info/top_level.txt
-tests/test1.py
+tests/test_catch.py
+tests/test_send.py

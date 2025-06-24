@@ -28,12 +28,13 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         self.api_url = API_URL
         super().__init__(app) # Inhereting from BaseHTTPMiddleware
 
-        """
         ### Validate user RETURNS TRUE OR FALSE
+        """
         self.auth = requests.post(
             self.api_url + "/api/auth/validate",
             json={"api_key": self.api_key}
-        )"""
+        )
+        """
         self.auth = True
     
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response: # type: ignore
@@ -41,6 +42,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             """Intercept request/response and send to api_server.py"""
             # Read the request body & load to JSON to send off to API
             body = await request.body()
+            sender_ip = request.client.host # type: ignore
+            request_method = request.method
 
             try:
                 body_dict = json.loads(body)
@@ -48,7 +51,11 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 body_dict = {}
 
             # Wrap it for the /api/schemas endpoint
-            payload = {"request_data": body_dict, "api_key":self.api_key}
+            payload = {"api_key":self.api_key, 
+                       "request_method": request_method, 
+                       "request_data": body_dict, 
+                       "host_ip": sender_ip}
+            
             print("Payload being sent to /api/schemas:", payload)
 
             requests.post(
