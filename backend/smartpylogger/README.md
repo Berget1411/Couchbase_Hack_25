@@ -1,0 +1,27 @@
+# SmartPyLogger
+
+FastAPI middleware for comprehensive request/response logging.
+
+## Installation
+
+```bash
+pip install -e .
+```
+
+## Dream Usage
+
+```python
+from fastapi import FastAPI
+from smartpylogger import LoggingMiddleware
+
+app = FastAPI()
+
+# Add your middleware
+app.add_middleware(
+    LoggingMiddleware,
+    api_key="YOUR_API_KEY",)
+```
+
+## What it logs:
+
+- **Request details**: Nothing yet
