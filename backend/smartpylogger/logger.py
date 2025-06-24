@@ -23,17 +23,17 @@ class ClientError(Exception):
 class LoggingMiddleware(BaseHTTPMiddleware):
     """FastAPI middleware - intercepts requests and sends to api_server.py"""
     
-    def __init__(self, app, api_key: str = "", user_id: str = ""):
+    def __init__(self, app, api_key: str = "", app_id: str = ""):
         """Initialize middleware with API credentials"""
         self.api_key = api_key
-        self.user_id = user_id
+        self.app_id = app_id
         self.api_url = API_URL
         super().__init__(app) # Inhereting from BaseHTTPMiddleware
 
         ### Validate user RETURNS TRUE OR FALSE
         response = requests.post(
             self.api_url + "/api/auth/validate",
-            json={"api_key": self.api_key, "user_id": self.user_id}
+            json={"api_key": self.api_key, "user_id": self.app_id}
         )
         print(response.json()["isValid"])
         
@@ -54,7 +54,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 body_dict = {}
 
             # Wrap it for the /api/schemas endpoint
-            payload = {"api_key":self.api_key, 
+            payload = {"api_key":self.api_key,
+                       "app_id":self.app_id,
                        "request_method": request_method, 
                        "request_data": body_dict, 
                        "host_ip": sender_ip,

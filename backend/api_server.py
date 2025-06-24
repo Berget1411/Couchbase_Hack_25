@@ -124,7 +124,9 @@ async def submit_schema(payload: Dict[str, Any]):
             print("\nDelete document success. CAS: ", result.cas)
         except CouchbaseException as e:
             print(e)
-            """
+        
+        """
+            
     except Exception as e:
         traceback.print_exc()
 
