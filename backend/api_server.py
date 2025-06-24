@@ -9,6 +9,7 @@ import psycopg2
 import os
 from typing import Optional, List, Any, Dict
 import json
+import requests
 from couchbase.exceptions import CouchbaseException
 from couchbase.auth import PasswordAuthenticator
 from couchbase.cluster import Cluster
@@ -67,10 +68,7 @@ class DashboardRequest(BaseModel):
 
 class UserRegistration(BaseModel):
     ### Unsure which fields are needed here, well figure out when we get schema done
-    username: str
-    email: str
-    api_key: str
-    user_id: str
+    valid_data:dict
 
 class PushNewRequests(BaseModel):
     user_id: str
@@ -136,14 +134,29 @@ async def submit_schema(payload: Dict[str, Any]):
         traceback.print_exc()
 
 @app.post("/api/auth/validate")
-async def validate_api_key_client(api_key: str):
+async def validate_api_key_client(auth_dict: Dict[str, Any]):
     """
     Validate API key and return user info.
     Essentially just checks w frontend if user is registered.
     """
-    
+    # print(api_key)
 
-    pass
+    response = requests.post("http://localhost:3000/api/validate-api-key", json=auth_dict)
+    # print(type(valbool.json()))
+    print(response.json())
+    response_val = response.json()["keyIsValid"]
+
+    if response_val == "true":
+        valbool = True
+
+    elif response_val == "false":
+        valbool = False
+
+    else:
+        print("BOMBACLAAAAAT")
+        raise TypeError
+
+    return valbool # True or false
 
 
 ### ---- DASHBOARD ENDPOINTS: Dashboard -> API ---- ###
