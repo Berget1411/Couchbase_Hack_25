@@ -58,6 +58,7 @@ class PushNewRequests(BaseModel):
     user_id: str
     api_key: str
 
+
 ### ---- CLIENT ENDPOINTS: SmartPyLogger -> API ---- ###
 
 @app.post("/api/schemas")
@@ -65,6 +66,7 @@ async def submit_schema(schema_data: SchemaData, api_key: str = Header(...)):
     """
     Receive schema from SmartPyLogger client and store in database
     """
+    print(schema_data)
     pass
 
 @app.post("/api/auth/validate")
@@ -131,4 +133,4 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8500)

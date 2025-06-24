@@ -1,6 +1,8 @@
 # Python
 __pycache__/
 .env
+.venv
+smartpylogger.egg-info
 
 # Node.js / JavaScript
 node_modules/

@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+setup.py
+smartpylogger.egg-info/PKG-INFO
+smartpylogger.egg-info/SOURCES.txt
+smartpylogger.egg-info/dependency_links.txt
+smartpylogger.egg-info/entry_points.txt
+smartpylogger.egg-info/requires.txt
+smartpylogger.egg-info/top_level.txt
+tests/test1.py
