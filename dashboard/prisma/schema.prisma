@@ -24,7 +24,6 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
-
   @@unique([email])
   @@map("user")
 }
@@ -73,3 +72,20 @@ model Verification {
 
   @@map("verification")
 }
+
+model AppGithubRepo {
+  id String @id
+  name String
+  description String
+  url String
+  stars Int
+  forks Int?
+  issues Int?
+  pullRequests Int?
+  createdAt DateTime
+  updatedAt DateTime
+  appId String
+  
+  @@map("app_github_repo")
+}
+

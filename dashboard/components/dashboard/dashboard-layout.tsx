@@ -1,8 +1,28 @@
+"use client";
+import { usePathname } from "next/navigation";
+import * as React from "react";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SiteHeader } from "@/components/sidebar/site-header";
+import { SidebarRight } from "@/components/sidebar/sidebar-right";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const [isChatOpen, setIsChatOpen] = React.useState(false);
+  const pathname = usePathname();
+  const appId = pathname.split("/")[3];
+  // Keyboard shortcut handler for Cmd+I
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey && event.key === "i") {
+        event.preventDefault();
+        setIsChatOpen((prev) => !prev);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <SidebarProvider
       style={
@@ -23,6 +43,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </SidebarInset>
+      {appId && (
+        <SidebarRight
+          appId={appId}
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+        />
+      )}
     </SidebarProvider>
   );
 }

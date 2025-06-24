@@ -38,7 +38,7 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
@@ -130,17 +130,17 @@ const data = {
   apps: [
     {
       name: "GraphRag",
-      url: "#",
+      url: "/dashboard/app/graphrag",
       icon: IconFolder,
     },
     {
       name: "AI Todo App",
-      url: "#",
+      url: "/dashboard/app/ai-todo-app",
       icon: IconFolder,
     },
     {
       name: "Ai Email Assistant App",
-      url: "#",
+      url: "/dashboard/app/ai-email-assistant-app",
       icon: IconFolder,
     },
   ],
