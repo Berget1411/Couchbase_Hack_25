@@ -9,9 +9,11 @@ from string import Template
 from typing import List, Dict, Any, Optional
 
 
-def get_db_connection():
-    """Get PostgreSQL database connection"""
-    return psycopg2.connect(
+
+class QueryDB():
+    def __init__(self):
+        ### Connect to DB on construct
+        self.db = psycopg2.connect(
         host=os.getenv("DB_HOST", "postgres"),
         database=os.getenv("DB_NAME", "smartpylogger_db"),
         user=os.getenv("DB_USER", "admin"),
@@ -19,8 +21,7 @@ def get_db_connection():
         port=os.getenv("DB_PORT", "5432")
     )
 
-
-def get_requests_by_ids(request_ids: List[int], user_id: str) -> List[Dict[str, Any]]:
+def get_requests_by_ids(self, request_ids: List[int], user_id: str) -> List[Dict[str, Any]]:
     """
     Query PostgreSQL for specific request rows by their IDs.
     
@@ -32,8 +33,8 @@ def get_requests_by_ids(request_ids: List[int], user_id: str) -> List[Dict[str, 
         List of request dictionaries with full data
     """
     try:
-        db = get_db_connection()
-        cursor = db.cursor()
+
+        cursor = self.db.cursor()
         
         # SQL query template with safe substitution by user_id
         query_template = Template("""
@@ -59,7 +60,7 @@ def get_requests_by_ids(request_ids: List[int], user_id: str) -> List[Dict[str, 
             })
         
         cursor.close()
-        db.close()
+        self.db.close()
         
         return requests
         

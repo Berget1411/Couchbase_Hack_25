@@ -7,7 +7,11 @@ class LLM():
         self.model=""
         self.query=""
 
-    def get_response(self, query: str) -> str: # type: ignore
+    def get_response(self, query: str, context: str) -> str: # type: ignore
+        """
+        Query obvious,
+        Context is the requests the user has chosen to analyse.
+        """
         response = ""
 
         return response
