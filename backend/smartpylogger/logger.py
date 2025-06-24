@@ -26,7 +26,19 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response: # type: ignore
         """Intercept request/response and send to api_server.py"""
-        pass
+        # Read the request body & load to JSON to send off to API
+        body = await request.body()
+
+        try:
+            body_dict = json.loads(body)
+        except Exception:
+            body_dict = {} 
+
+        requests.post(API_URL + "/schemas", json=body_dict)
+
+        response = await call_next(request)
+        
+        return response
     
     async def _send_to_api_server(self, request: Request, response: Response, process_time: float):
         """Send request data to api_server.py endpoint: POST /api/schemas"""
