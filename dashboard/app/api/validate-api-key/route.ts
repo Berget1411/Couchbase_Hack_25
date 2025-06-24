@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateApiKey } from "@/lib/api/service";
+import { checkUserExists, validateApiKey } from "@/lib/api/service";
 
 export async function POST(request: NextRequest) {
-  const { apiKey } = await request.json();
+  const { apiKey, userId } = await request.json();
+
+  const userExists = await checkUserExists(userId);
 
   const keyIsValid = await validateApiKey(apiKey);
 
-  return NextResponse.json({ keyIsValid });
+  const isValid = userExists && keyIsValid;
+
+  return NextResponse.json({ isValid });
 }
