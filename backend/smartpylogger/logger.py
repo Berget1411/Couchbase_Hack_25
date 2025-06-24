@@ -11,7 +11,7 @@ import json
 import requests
 from typing import Dict, Any, Optional
 from fastapi import Request, Response
-from fastapi.middleware.base import BaseHTTPMiddleware # type: ignore
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.base import RequestResponseEndpoint
 
 API_URL="http://localhost:8000"  ### CHANGE TO EXTERNAL IP LATER
