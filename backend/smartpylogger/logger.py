@@ -45,12 +45,15 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             try:
                 body_dict = json.loads(body)
             except Exception:
-                body_dict = {} 
+                body_dict = {}
+
+            # Wrap it for the /api/schemas endpoint
+            payload = {"request_data": body_dict, "api_key":self.api_key}
+            print("Payload being sent to /api/schemas:", payload)
 
             requests.post(
                 self.api_url + "/api/schemas",
-                json=body_dict,
-                headers={"api_key": self.api_key}
+                json=payload
             )
 
             response = await call_next(request)

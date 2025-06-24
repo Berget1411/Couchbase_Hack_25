@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import psycopg2
 import os
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Dict
 import json
 
 ### Other class and file imports
@@ -62,11 +62,9 @@ class PushNewRequests(BaseModel):
 ### ---- CLIENT ENDPOINTS: SmartPyLogger -> API ---- ###
 
 @app.post("/api/schemas")
-async def submit_schema(schema_data: SchemaData, api_key: str = Header(...)):
-    """
-    Receive schema from SmartPyLogger client and store in database
-    """
-    print(schema_data)
+async def submit_schema(payload: Dict[str, Any]):
+    print(payload)
+    # Now payload can be any JSON
     pass
 
 @app.post("/api/auth/validate")
@@ -133,4 +131,4 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8500)
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
