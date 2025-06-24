@@ -2,6 +2,7 @@
 __pycache__/
 .env
 .venv
+backend/smartpylogger.egg-info
 
 # Node.js / JavaScript
 node_modules/
