@@ -9,6 +9,17 @@ import psycopg2
 import os
 from typing import Optional, List, Any, Dict
 import json
+from couchbase.exceptions import CouchbaseException
+from couchbase.auth import PasswordAuthenticator
+from couchbase.cluster import Cluster
+from couchbase.options import ClusterOptions
+from datetime import timedelta
+import traceback
+import requests
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 ### Other class and file imports
 from client import Utils
@@ -26,16 +37,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database connection
-def get_db_connection():
-    """Get PostgreSQL database connection"""
-    return psycopg2.connect(
-        host=os.getenv("DB_HOST", "postgres"),
-        database=os.getenv("DB_NAME", "smartpylogger_db"),
-        user=os.getenv("DB_USER", "admin"),
-        password=os.getenv("DB_PASSWORD", "admin"),
-        port=os.getenv("DB_PORT", "5432")
-    )
+# Couchbase connection
+endpoint = "couchbases://cb.82kuz4rgjdzyhlh.cloud.couchbase.com"
+cb_username = os.getenv("CB_USER")
+cb_password = os.getenv("CB_PASSWORD")
+cb_bucketname = os.getenv("BUCKET_NAME")
+cb_scope = os.getenv("SCOPE_NAME")
+cb_collection = os.getenv("COLLECTION_NAME")
 
 ### ---- Pydantic models for typesafety ---- ###
 class SchemaData(BaseModel):
@@ -49,10 +57,7 @@ class DashboardRequest(BaseModel):
 
 class UserRegistration(BaseModel):
     ### Unsure which fields are needed here, well figure out when we get schema done
-    username: str
-    email: str
-    api_key: str
-    user_id: str
+    valid_data:dict
 
 class PushNewRequests(BaseModel):
     user_id: str
@@ -63,19 +68,81 @@ class PushNewRequests(BaseModel):
 
 @app.post("/api/schemas")
 async def submit_schema(payload: Dict[str, Any]):
-    print(payload)
-    # Now payload can be any JSON
-    pass
+    """
+    payload = {
+	"type": "airline",
+	"id": 8091,
+	"callsign": "CBS",
+	"iata": None,
+	"icao": None,
+	"name": "Couchbase Airways",
+    }
+    """
+    
+    key = "lebron_james"
+
+    print(cb_username)
+
+    auth = PasswordAuthenticator(cb_username, cb_password)
+
+    options = ClusterOptions(auth)
+    options.apply_profile("wan_development")
+
+    try:
+        print("Entered first try")
+        cluster = Cluster(endpoint, options)
+        # Wait until the cluster is ready for use.
+        cluster.wait_until_ready(timedelta(seconds=5))
+        # Get a reference to our bucket
+        cb = cluster.bucket(cb_bucketname)
+        # Get a reference to our collection
+        cb_coll = cb.scope(cb_scope).collection(cb_collection)
+        # Simple K-V operation - to create a document with specific ID
+        try:
+            print("2nd try")
+            result = cb_coll.insert(key, payload)
+            print("\nCreate document success. CAS: ", result.cas)
+        except CouchbaseException as e:
+            print(e)
+        # Simple K-V operation - to retrieve a document by ID
+        try:
+            result = cb_coll.get(key)
+            print("\nFetch document success. Result: ", result.content_as[dict])
+        except CouchbaseException as e:
+            print(e)
+        # Simple K-V operation - to update a document by ID
+        try:
+            payload["name"] = "Couchbase Airways!!"
+            result = cb_coll.replace(key, payload)
+            print("\nUpdate document success. CAS: ", result.cas)
+        except CouchbaseException as e:
+            print(e)
+        # Simple K-V operation - to delete a document by ID
+        """
+        try:
+            result = cb_coll.remove(key)
+            print("\nDelete document success. CAS: ", result.cas)
+        except CouchbaseException as e:
+            print(e)
+            """
+    except Exception as e:
+        traceback.print_exc()
 
 @app.post("/api/auth/validate")
-async def validate_api_key_client(api_key: str):
+async def validate_api_key_client(auth_dict: Dict[str, Any]):
     """
     Validate API key and return user info.
     Essentially just checks w frontend if user is registered.
     """
-    
+    # print(api_key)
 
-    pass
+    response = requests.post("http://localhost:3000/api/validate-api-key", json=auth_dict)
+    # print(type(valbool.json()))
+    print(response.json())
+    response_val = response.json()["isValid"]
+    print(type(response_val))
+
+    return {"isValid": response_val} # True or false
 
 
 ### ---- DASHBOARD ENDPOINTS: Dashboard -> API ---- ###
