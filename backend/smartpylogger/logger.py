@@ -28,11 +28,13 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         self.api_url = API_URL
         super().__init__(app) # Inhereting from BaseHTTPMiddleware
 
+        """
         ### Validate user RETURNS TRUE OR FALSE
         self.auth = requests.post(
             self.api_url + "/api/auth/validate",
             json={"api_key": self.api_key}
-        )
+        )"""
+        self.auth = True
     
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response: # type: ignore
         if self.auth is True:

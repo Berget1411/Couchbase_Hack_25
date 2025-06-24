@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 .env
+.venv
 
 # Node.js / JavaScript
 node_modules/
