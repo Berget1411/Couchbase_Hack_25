@@ -9,13 +9,13 @@ import psycopg2
 import os
 from typing import Optional, List, Any, Dict
 import json
-import requests
 from couchbase.exceptions import CouchbaseException
 from couchbase.auth import PasswordAuthenticator
 from couchbase.cluster import Cluster
 from couchbase.options import ClusterOptions
 from datetime import timedelta
 import traceback
+import requests
 
 from dotenv import load_dotenv
 
@@ -36,17 +36,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Database connection
-def get_db_connection():
-    """Get PostgreSQL database connection"""
-    return psycopg2.connect(
-        host=os.getenv("DB_HOST", "postgres"),
-        database=os.getenv("DB_NAME", "smartpylogger_db"),
-        user=os.getenv("DB_USER", "admin"),
-        password=os.getenv("DB_PASSWORD", "admin"),
-        port=os.getenv("DB_PORT", "5432")
-    )
 
 # Couchbase connection
 endpoint = "couchbases://cb.82kuz4rgjdzyhlh.cloud.couchbase.com"
@@ -144,19 +133,10 @@ async def validate_api_key_client(auth_dict: Dict[str, Any]):
     response = requests.post("http://localhost:3000/api/validate-api-key", json=auth_dict)
     # print(type(valbool.json()))
     print(response.json())
-    response_val = response.json()["keyIsValid"]
+    response_val = response.json()["isValid"]
+    print(type(response_val))
 
-    if response_val == "true":
-        valbool = True
-
-    elif response_val == "false":
-        valbool = False
-
-    else:
-        print("BOMBACLAAAAAT")
-        raise TypeError
-
-    return valbool # True or false
+    return {"isValid": response_val} # True or false
 
 
 ### ---- DASHBOARD ENDPOINTS: Dashboard -> API ---- ###

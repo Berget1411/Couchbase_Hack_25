@@ -31,12 +31,13 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         super().__init__(app) # Inhereting from BaseHTTPMiddleware
 
         ### Validate user RETURNS TRUE OR FALSE
-        self.auth = requests.post(
+        response = requests.post(
             self.api_url + "/api/auth/validate",
             json={"api_key": self.api_key, "user_id": self.user_id}
         )
+        print(response.json()["isValid"])
         
-        #self.auth = True
+        self.auth = response.json()["isValid"]
     
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response: # type: ignore
         if self.auth is True:
@@ -70,5 +71,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             
             return response
         
+        elif self.auth == False:
+            print("invalid API key")
+
         else:
-            raise ClientError("Invalid API key. Skill issue. If you're broke just say thaaaaat.")
+            raise ClientError("I dont know")
