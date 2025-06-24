@@ -9,6 +9,9 @@ import psycopg2
 import os
 from typing import Optional, List
 
+from client import Utils
+from infer import LLM
+
 app = FastAPI(title="SmartPyLogger API", version="1.0.0")
 
 # CORS for dashboard connection

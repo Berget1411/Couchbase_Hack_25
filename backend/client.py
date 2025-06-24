@@ -7,10 +7,16 @@ Pretty much a utils file for random stuffs
 import requests
 from typing import Dict, Any, Optional
 
-def validate_api_key(api_key: str) -> str:  # type: ignore
-    """Validate API key and return user_id"""
-    pass
+class Utils():
+    def __init__(self):
+        self.api_key=""
 
-def init_database():
-    """Initialize database tables"""
-    pass
+    def validate_api_key(self, api_key) -> str:  # type: ignore
+        """Validate API key and return user_id"""
+        self.api_key=api_key
+        
+        pass
+
+    def init_database(self):
+        """Initialize database tables"""
+        pass
