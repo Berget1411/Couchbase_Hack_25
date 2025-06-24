@@ -11,6 +11,19 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   secret: process.env.BETTER_AUTH_SECRET!,
+  baseURL:
+    process.env.BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000"),
+  trustedOrigins: [
+    process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "",
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "",
+    "http://localhost:3000",
+    "https://couchbase-hack-25-9icj.vercel.app",
+    "https://couchbase-hack-25-9icj-c8at0lgfu-berget1411s-projects.vercel.app",
+  ].filter(Boolean),
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
