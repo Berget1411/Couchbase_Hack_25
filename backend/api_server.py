@@ -9,6 +9,9 @@ import psycopg2
 import os
 from typing import Optional, List
 
+from client import Utils
+from infer import LLM
+
 app = FastAPI(title="SmartPyLogger API", version="1.0.0")
 
 # CORS for dashboard connection
@@ -56,12 +59,17 @@ class PushNewRequests(BaseModel):
 
 @app.post("/api/schemas")
 async def submit_schema(schema_data: SchemaData, api_key: str = Header(...)):
-    """Receive schema from SmartPyLogger client and store in database"""
+    """
+    Receive schema from SmartPyLogger client and store in database
+    """
     pass
 
 @app.post("/api/auth/validate")
 async def validate_api_key_client(api_key: str):
-    """Validate API key and return user info"""
+    """
+    Validate API key and return user info.
+    Essentially just checks w frontend if user is registered.
+    """
     pass
 
 
@@ -82,12 +90,16 @@ async def push_selected_requests_response(request: DashboardRequest):
     - With request_ids + no chat_message = Feed to LLM and revert to standard prompt to summarize what they are likely to mean  
     - With request_ids + chat_message = Return selected requests + LLM analysis with regard to ur query
     """
-    pass
 
-@app.get("/dashboard/users")
-async def get_users():
-    """Get all users (for dashboard admin)"""
-    pass
+    llm = LLM()
+
+    if request.chat_message is not None:
+        llm.get_response(query=request.chat_message, context=)
+
+    elif request.chat_message is None:
+        
+
+    
 
 @app.post("/dashboard/push-new-requests")
 async def push_new_requests_to_frontend(request: PushNewRequests):

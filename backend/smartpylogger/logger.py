@@ -14,11 +14,13 @@ from fastapi import Request, Response
 from fastapi.middleware.base import BaseHTTPMiddleware # type: ignore
 from starlette.middleware.base import RequestResponseEndpoint
 
+API_URL="http://localhost:8000"  ### CHANGE TO EXTERNAL IP LATER
+
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     """FastAPI middleware - intercepts requests and sends to api_server.py"""
     
-    def __init__(self, app, api_key: str = "", api_url: str = "https://api.com"):
+    def __init__(self, app, api_key: str = "", api_url: str = API_URL):
         """Initialize middleware with API credentials"""
         pass
     
@@ -31,26 +33,6 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         pass
 
 
-def setup_logging_middleware(app, api_key: str = "", api_url: str = "https://api.com"):
+def setup_logging_middleware(app, api_key: str = "", api_url: str = API_URL):
     """Add logging middleware to FastAPI app"""
     pass
-
-
-class SmartPyLogger:
-    """Client - sends data to api_server.py only"""
-    
-    def __init__(self, api_key: str, api_url: str = "https://api.com"):
-        """Initialize with API key"""
-        pass
-    
-    def log_event(self, event_type: str, data: Dict[str, Any]):
-        """Send event to api_server.py endpoint: POST /api/schemas"""
-        pass
-    
-    def get_logs(self, filters: Optional[Dict] = None):
-        """Get logs from GET /dashboard/requests"""
-        pass
-    
-    def validate_api_key(self):
-        """Validate key with POST /api/auth/validate"""
-        pass
