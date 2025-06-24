@@ -1,6 +1,5 @@
 README.md
 pyproject.toml
-setup.py
 smartpylogger.egg-info/PKG-INFO
 smartpylogger.egg-info/SOURCES.txt
 smartpylogger.egg-info/dependency_links.txt
