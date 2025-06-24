@@ -58,6 +58,7 @@ class PushNewRequests(BaseModel):
     user_id: str
     api_key: str
 
+
 ### ---- CLIENT ENDPOINTS: SmartPyLogger -> API ---- ###
 
 @app.post("/api/schemas")
