@@ -73,6 +73,8 @@ async def validate_api_key_client(api_key: str):
     Validate API key and return user info.
     Essentially just checks w frontend if user is registered.
     """
+    
+
     pass
 
 
