@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { Toaster } from "sonner";
 import { QueryProvider } from "./query-provider";
 import { ThemeProvider } from "./theme-provider";
+import { TableProvider } from "./table-provider";
 
 export function Provider({ children }: { children: ReactNode }) {
   return (
@@ -11,7 +12,7 @@ export function Provider({ children }: { children: ReactNode }) {
       <QueryProvider>
         <ThemeProvider>
           <Toaster />
-          {children}
+          <TableProvider>{children}</TableProvider>
         </ThemeProvider>
       </QueryProvider>
     </>
