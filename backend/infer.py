@@ -2,9 +2,14 @@
 LLM file
 """
 
+import openai
+from openai import OpenAI
+import os
+
 class LLM():
     def __init__(self):
-        self.model=""
+        self.model="o3-mini"
+        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.query=""
 
     def get_response(self, query: str, context: str) -> str: # type: ignore
