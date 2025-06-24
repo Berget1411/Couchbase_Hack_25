@@ -3,23 +3,15 @@
 import * as React from "react";
 import {
   IconCamera,
-  IconChartBar,
   IconDashboard,
-  IconDatabase,
-  IconGraph,
   IconFileAi,
   IconFileDescription,
   IconFileText,
-  IconFileWord,
   IconHelp,
   IconInnerShadowTop,
-  IconMail,
   IconSparkles,
-  IconReport,
   IconSearch,
   IconSettings,
-  IconUsers,
-  IconListDetails,
   IconFolder,
 } from "@tabler/icons-react";
 
