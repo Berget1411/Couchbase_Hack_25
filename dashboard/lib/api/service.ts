@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 export const validateApiKey = async (apiKey: string) => {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: {
       apiKey,
     },
