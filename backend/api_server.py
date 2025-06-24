@@ -68,6 +68,7 @@ class PushNewRequests(BaseModel):
 
 @app.post("/api/schemas")
 async def submit_schema(payload: Dict[str, Any]):
+    """
     payload = {
 	"type": "airline",
 	"id": 8091,
@@ -76,6 +77,7 @@ async def submit_schema(payload: Dict[str, Any]):
 	"icao": None,
 	"name": "Couchbase Airways",
     }
+    """
     
     key = "lebron_james"
 
@@ -87,6 +89,7 @@ async def submit_schema(payload: Dict[str, Any]):
     options.apply_profile("wan_development")
 
     try:
+        print("Entered first try")
         cluster = Cluster(endpoint, options)
         # Wait until the cluster is ready for use.
         cluster.wait_until_ready(timedelta(seconds=5))
@@ -96,6 +99,7 @@ async def submit_schema(payload: Dict[str, Any]):
         cb_coll = cb.scope(cb_scope).collection(cb_collection)
         # Simple K-V operation - to create a document with specific ID
         try:
+            print("2nd try")
             result = cb_coll.insert(key, payload)
             print("\nCreate document success. CAS: ", result.cas)
         except CouchbaseException as e:
@@ -114,11 +118,13 @@ async def submit_schema(payload: Dict[str, Any]):
         except CouchbaseException as e:
             print(e)
         # Simple K-V operation - to delete a document by ID
+        """
         try:
             result = cb_coll.remove(key)
             print("\nDelete document success. CAS: ", result.cas)
         except CouchbaseException as e:
             print(e)
+            """
     except Exception as e:
         traceback.print_exc()
 
