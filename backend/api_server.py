@@ -7,10 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import psycopg2
 import os
-from typing import Optional, List
+from typing import Optional, List, Any
+import json
 
+### Other class and file imports
 from client import Utils
 from infer import LLM
+from query import QueryDB
 
 app = FastAPI(title="SmartPyLogger API", version="1.0.0")
 
@@ -41,8 +44,8 @@ class SchemaData(BaseModel):
 class DashboardRequest(BaseModel):
     user_id: str
     api_key: str
-    request_ids: Optional[List[int]] = None  # Selected rows
-    chat_message: Optional[str] = None        # LLM analysis request
+    request_ids: Optional[List[int]] # Selected rows
+    chat_message: Optional[str] # LLM analysis request
 
 class UserRegistration(BaseModel):
     ### Unsure which fields are needed here, well figure out when we get schema done
@@ -92,14 +95,22 @@ async def push_selected_requests_response(request: DashboardRequest):
     """
 
     llm = LLM()
+    query_db = QueryDB()
+
+    queried_requests: list[dict[str, Any]] = []
+
+    if request.request_ids is not None:
+        queried_requests = query_db.get_requests_by_ids(
+            api_key=request.api_key,
+            request_ids=request.request_ids
+        )
+
+    context_str = json.dumps(queried_requests)
 
     if request.chat_message is not None:
-        llm.get_response(query=request.chat_message, context=)
-
-    elif request.chat_message is None:
-        
-
-    
+        llm.get_response(query=request.chat_message, context=context_str)
+    else:
+        llm.get_response(query="The user did not ask for anything particular. Summarize the requests below: ", context=context_str)
 
 @app.post("/dashboard/push-new-requests")
 async def push_new_requests_to_frontend(request: PushNewRequests):
