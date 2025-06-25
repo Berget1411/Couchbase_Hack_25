@@ -9,7 +9,7 @@ import (
 // Defining payload struct
 type PayloadIP struct {
 	APIKey         string                 `json:"api_key"`
-	AppID          string                 `json:"app_id"`
+	SessionID      string                 `json:"session_id"`
 	RequestMethod  string                 `json:"request_method"`
 	RequestData    map[string]interface{} `json:"request_data"`
 	AllowedOrigins []string               `json:"allowed_origins"`
@@ -47,17 +47,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Default: flag is whatever was in the input
+	exitCode := 0
+
 	// Check if sender_ip is in allowed_origins
 	isAllowed := isIPAllowed(payload.SenderIP, payload.AllowedOrigins)
 
-	// If IP not allowed, return fatal error and block request
 	if !isAllowed {
-		fmt.Printf("FATAL: Unauthorized IP address %s not in allowed origins %v\n",
-			payload.SenderIP, payload.AllowedOrigins)
-		os.Exit(1) // Fatal exit - blocks the request
+		payload.Flag = 2 // or 1, or whatever you want to indicate IP block
+		exitCode = 1
 	}
 
-	// If IP is allowed, return success
-	fmt.Println("IP validation passed")
-	os.Exit(0)
+	// Always return the (possibly updated) payload as JSON
+	output, err := json.Marshal(payload)
+	if err != nil {
+		fmt.Printf("{\"error\": \"Failed to marshal payload: %v\"}\n", err)
+		os.Exit(2)
+	}
+	fmt.Println(string(output))
+	os.Exit(exitCode)
 }

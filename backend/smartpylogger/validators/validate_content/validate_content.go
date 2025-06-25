@@ -11,7 +11,7 @@ import (
 // Defining payload struct
 type PayloadWords struct {
 	APIKey         string                 `json:"api_key"`
-	AppID          string                 `json:"app_id"`
+	SessionID      string                 `json:"session_id"`
 	RequestMethod  string                 `json:"request_method"`
 	RequestData    map[string]interface{} `json:"request_data"`
 	AllowedOrigins []string               `json:"allowed_origins"`
@@ -99,7 +99,7 @@ func main() {
 		// Create response with updated flag
 		response := map[string]interface{}{
 			"api_key":         payload.APIKey,
-			"app_id":          payload.AppID,
+			"session_id":      payload.SessionID,
 			"request_method":  payload.RequestMethod,
 			"request_data":    payload.RequestData,
 			"allowed_origins": payload.AllowedOrigins,
@@ -117,7 +117,7 @@ func main() {
 	// If validation passes, keep flag as 0 and return original payload
 	response := map[string]interface{}{
 		"api_key":         payload.APIKey,
-		"app_id":          payload.AppID,
+		"session_id":      payload.SessionID,
 		"request_method":  payload.RequestMethod,
 		"request_data":    payload.RequestData,
 		"allowed_origins": payload.AllowedOrigins,

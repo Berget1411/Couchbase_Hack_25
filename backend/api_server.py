@@ -25,10 +25,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+### File imports
+from query import QueryDB
+
 ### Other class and file imports
 from client import Utils
 from infer import LLM
 from query import QueryDB
+
+query_obj = QueryDB() # Initialize query object for database operations
 
 app = FastAPI(title="SmartPyLogger API", version="1.0.0")
 
@@ -63,9 +68,6 @@ class UserRegistration(BaseModel):
     ### Unsure which fields are needed here, well figure out when we get schema done
     valid_data:dict
 
-class PushNewRequests(BaseModel):
-    api_key: str # I dont know what he wants to send me
-
 
 ### ---- CLIENT ENDPOINTS: SmartPyLogger -> API ---- ###
 
@@ -86,14 +88,14 @@ async def submit_schema(payload: Dict[str, Any]):
     
     print(payload)
 
-    auth = PasswordAuthenticator(cb_username, cb_password)
+    auth = PasswordAuthenticator(cb_username, cb_password) # type: ignore
 
     options = ClusterOptions(auth)
     options.apply_profile("wan_development")
 
     try:
         
-        cluster = Cluster(endpoint, options)
+        cluster = Cluster(endpoint, options) # type: ignore
 
         # Wait until the cluster is ready for use.
         cluster.wait_until_ready(timedelta(seconds=5))
@@ -102,7 +104,7 @@ async def submit_schema(payload: Dict[str, Any]):
         cb = cluster.bucket(cb_bucketname)
 
         # Get a reference to our collection
-        cb_coll = cb.scope(cb_scope).collection(cb_collection)
+        cb_coll = cb.scope(cb_scope).collection(cb_collection) # type: ignore
 
         # Simple K-V operation - to create a document with specific ID
         try:
@@ -135,8 +137,6 @@ async def submit_schema(payload: Dict[str, Any]):
             print(e)
         """
         
-    
-    ### MAKE SURE TO CLEAR OLD DB ENTRIES
 
     except Exception as e:
         traceback.print_exc()
@@ -147,13 +147,12 @@ async def validate_api_key_client(auth_dict: Dict[str, Any]):
     Validate API key and return user info.
     Essentially just checks w frontend if user is registered.
     """
-    # print(api_key)
 
     response = requests.post("http://localhost:3000/api/validate-api-key", json=auth_dict)
-    # print(type(valbool.json()))
+
     print(response.json())
     response_val = response.json()["isValid"]
-    print(type(response_val))
+    # print(type(response_val))
 
     return {"isValid": response_val} # True or false
 
@@ -195,18 +194,23 @@ async def push_selected_requests_response(request: DashboardRequest):
         llm.get_response(query="The user did not ask for anything particular. Summarize the requests below: ", context=context_str)
 
 @app.post("/dashboard/push-new-requests")
-async def push_new_requests_to_frontend(request: PushNewRequests):
+async def push_new_requests_to_frontend(request_dict: Dict[str, Any]):
     """
     Push new request rows to frontend for real-time updates.
     Called when new requests arrive from SmartPyLogger clients.
     """
     # api_key_query = 
     ### Find all shits in db
-    result_dict = {}
 
-    requests.post(url="http://localhost:3000/", json=result_dict) # I don't know the url and endpoint
+    # Request dict will contain api_key, app_id, and num of requested rows
 
-    pass
+    returned_list_dict = query_obj.get_requests_by_ids(
+        api_key=request_dict["api_key"],
+        app_id=request_dict["app_id"],
+        number=request_dict["num_rows"]
+    )
+
+    requests.post(url="http://localhost:3000/", json=returned_list_dict) # I don't know the url and endpoint
 
 # Health check
 @app.get("/health")

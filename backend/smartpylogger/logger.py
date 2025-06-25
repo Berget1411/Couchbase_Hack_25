@@ -9,6 +9,7 @@ import subprocess
 import os
 import platform
 from datetime import datetime
+from random import randint
 
 import json
 import requests
@@ -27,12 +28,12 @@ class ClientError(Exception):
 class LoggingMiddleware(BaseHTTPMiddleware):
     """FastAPI middleware - intercepts requests and sends to api_server.py"""
     
-    def __init__(self, app, api_key: str = "", app_id: str = "", allowed_origins: Optional[list[str]] = None):
+    def __init__(self, app, api_key: str = "", allowed_origins: Optional[list[str]] = None):
         """Initialize middleware with API credentials"""
 
         # Basic configuration
         self.api_key = api_key
-        self.app_id = app_id
+        self.user_id = randint(1,999999999) # Generating a session ID for the users
         self.api_url = API_URL
         self.allowed_origins = allowed_origins or []
 
@@ -46,19 +47,19 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         ### ---- VALIDATE USER ---- ###
         response = requests.post(
             self.api_url + "/api/auth/validate",
-            json={"api_key": self.api_key, "app_id": self.app_id}
+            json={"api_key": self.api_key}
         )
         print(response.json()["isValid"])
         
         self.auth = response.json()["isValid"] ### Returns true or false
 
         if self.auth is True:
-            print("Valid API key and app_id")
+            print("Valid API key")
         elif self.auth is False:
-            print("Invalid API key or app_id")
+            print("Invalid API key")
             raise HTTPException(
                 status_code=401,
-                detail="Invalid API key or app_id"
+                detail="Invalid API key"
             )
         else:
             print("Unknown error during API key validation")
@@ -111,7 +112,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
             # Wrap it for the /api/schemas endpoint
             payload = {"api_key":self.api_key,
-                       "app_id":self.app_id,
+                       "user_id":self.user_id,
                        "request_method": request_method, 
                        "request_data": body_dict,
                        "allowed_origins": self.allowed_origins,
@@ -123,44 +124,27 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
             # 1. IP VALIDATION (fatal, but log first)
             ip_validator_path = self.ip_validator_path
-            ip_result = subprocess.run(
-                [ip_validator_path, json.dumps(payload)],
+            payload_json = json.dumps(payload)
+            result = subprocess.run(
+                [ip_validator_path, payload_json],
                 capture_output=True,
                 text=True,
                 timeout=5
             )
-            ip_blocked = ip_result.returncode != 0
-
-            # Optionally, set a special flag for blocked IPs
-            if ip_blocked:
-                payload["flag"] = 2  # 2 = blocked by IP, 1 = flagged by content, 0 = clean
-
-            # 2. CONTENT VALIDATION (flagging)
-            content_validator_path = self.content_validator_path
-            content_result = subprocess.run(
-                [content_validator_path, json.dumps(payload)],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            if content_result.returncode == 0:
-                try:
-                    validated_payload = json.loads(content_result.stdout)
-                    payload = validated_payload  # Overwrite with flagged version if needed
-                except Exception:
-                    pass
-
-            # Only send the POST request once, after all validation
-            requests.post(
-                self.api_url + "/api/schemas",
-                json=payload
-            )
+            validated_payload = json.loads(result.stdout)
+            if result.returncode != 0:
+                # Block the request, but you have the updated payload for logging
+                requests.post(self.api_url + "/api/schemas", json=validated_payload)
+                raise HTTPException(status_code=403, detail="IP not allowed")
+            else:
+                # Continue as normal, using validated_payload
+                requests.post(self.api_url + "/api/schemas", json=validated_payload)
 
             # 4. If IP was blocked, now raise the HTTP error
-            if ip_blocked:
+            if result.returncode != 0:
                 raise HTTPException(
                     status_code=403,
-                    detail=f"Request blocked: Unauthorized IP address. {ip_result.stdout.strip()}"
+                    detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
                 )
 
             # 5. Otherwise, continue as normal
