@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   getAppSession,
-  createAppSession,
   updateAppSession,
   deleteAppSession,
 } from "@/lib/api/dashboard/app-session-fetch";
@@ -18,20 +17,6 @@ export async function GET(
   }
 
   const appSession = await getAppSession(appSessionId);
-  return NextResponse.json(appSession);
-}
-
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { appSessionId: string } }
-) {
-  const { appSessionId } = params;
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const appSession = await createAppSession(appSessionId);
   return NextResponse.json(appSession);
 }
 

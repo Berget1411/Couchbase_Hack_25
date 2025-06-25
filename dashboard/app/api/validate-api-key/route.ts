@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateApiKey } from "@/lib/api/service";
-import { createAppSession } from "@/lib/api/dashboard/app-session-fetch";
+import { createAppSession } from "@/services/app-session-service";
 import { getUserByApiKey } from "@/services/user-service";
 
 export async function POST(request: NextRequest) {
