@@ -81,8 +81,6 @@ async def submit_schema(payload: Dict[str, Any]):
 	"name": "Couchbase Airways",
     }
     """
-    
-    ### CALL A SNIFFER FUNCTION TO LOOK AT THE PAYLOAD AND VALIDATE IF ITS HAZARDOUS OR NOT
 
     key = payload['timestamp'] + ":" + payload["api_key"] + ":" + payload["app_id"]
     
@@ -96,12 +94,16 @@ async def submit_schema(payload: Dict[str, Any]):
     try:
         
         cluster = Cluster(endpoint, options)
+
         # Wait until the cluster is ready for use.
         cluster.wait_until_ready(timedelta(seconds=5))
+
         # Get a reference to our bucket
         cb = cluster.bucket(cb_bucketname)
+
         # Get a reference to our collection
         cb_coll = cb.scope(cb_scope).collection(cb_collection)
+
         # Simple K-V operation - to create a document with specific ID
         try:
             result = cb_coll.insert(key, payload)
