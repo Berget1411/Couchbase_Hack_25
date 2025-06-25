@@ -27,7 +27,7 @@ class QueryDB():
         self.scope = os.getenv("SCOPE_NAME")
         self.collect = os.getenv("COLLECTION_NAME")
 
-    def get_requests_by_ids(self, app_id: str, api_key: str, number: int) -> :
+    def get_requests_by_ids(self, app_id: str, api_key: str, number: int) -> list[dict]:
         """
         Query PostgreSQL for specific request rows by their IDs.
         
@@ -61,7 +61,7 @@ class QueryDB():
                 "number": number
             }))
 
-            return result
+            return [row for row in result]
             
         except Exception as e:
             print(f"Database query error: {e}")
@@ -75,6 +75,6 @@ class QueryDB():
 if __name__ == "__main__":
 
     yabadabadu = QueryDB()
-    yaba = yabadabadu.get_requests_by_ids("DOYpQ6s0SzS1pLhpyCovvK3jdWpKfl7W", "4806ae52-5ba5-401f-9622-6f3a31483287")
+    yaba = yabadabadu.get_requests_by_ids("DOYpQ6s0SzS1pLhpyCovvK3jdWpKfl7W", "4806ae52-5ba5-401f-9622-6f3a31483287", 5)
     for row in yaba:
         print(row)
