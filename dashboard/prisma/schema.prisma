@@ -24,6 +24,7 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  appSessions   AppSession[]
   @@unique([email])
   @@map("user")
 }
@@ -73,19 +74,32 @@ model Verification {
   @@map("verification")
 }
 
+model AppSession {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  githubRepo AppGithubRepo? @relation(fields: [githubRepoId], references: [id], onDelete: Cascade)
+  githubRepoId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("app_session")
+}
+
 model AppGithubRepo {
-  id String @id
+  id String @id @default(cuid())
   name String
-  description String
+  fullName String
+  description String?
   url String
   stars Int
   forks Int?
   issues Int?
   pullRequests Int?
-  createdAt DateTime
-  updatedAt DateTime
-  appId String
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  appSessions AppSession[]
+  @@unique([fullName])
   @@map("app_github_repo")
 }
 

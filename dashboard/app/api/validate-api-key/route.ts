@@ -1,14 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkUserExists, validateApiKey } from "@/lib/api/service";
+import { validateApiKey } from "@/lib/api/service";
+import { createAppSession } from "@/lib/api/dashboard/app-session-fetch";
+import { getUserByApiKey } from "@/services/user-service";
 
 export async function POST(request: NextRequest) {
-  const { apiKey, userId } = await request.json();
-
-  const userExists = await checkUserExists(userId);
+  const { apiKey } = await request.json();
 
   const keyIsValid = await validateApiKey(apiKey);
 
-  const isValid = userExists && keyIsValid;
+  if (keyIsValid) {
+    const user = await getUserByApiKey(apiKey);
+    if (!user) {
+      return NextResponse.json({ appSessionId: 0 });
+    }
 
-  return NextResponse.json({ isValid });
+    const appSession = await createAppSession(user.id);
+    return NextResponse.json({ appSessionId: appSession.id });
+  } else {
+    return NextResponse.json({ appSessionId: 0 });
+  }
 }
