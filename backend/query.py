@@ -8,20 +8,22 @@ import os
 from string import Template
 from typing import List, Dict, Any, Optional
 
-
+from couchbase.cluster import Cluster
+from couchbase.options import ClusterOptions, QueryOptions
+from couchbase.auth import PasswordAuthenticator
+from couchbase.exceptions import CouchbaseException
 
 class QueryDB():
     def __init__(self):
-        ### Connect to DB on construct
-        self.db = psycopg2.connect(
-        host=os.getenv("DB_HOST", "postgres"),
-        database=os.getenv("DB_NAME", "smartpylogger_db"),
-        user=os.getenv("DB_USER", "admin"),
-        password=os.getenv("DB_PASSWORD", "admin"),
-        port=os.getenv("DB_PORT", "5432")
-    )
+        
+        self.endpoint = "couchbases://cb.82kuz4rgjdzyhlh.cloud.couchbase.com"
+        self.user = os.getenv("CB_USER")
+        self.password = os.getenv("CB_PASSWORD")
+        self.bucket = os.getenv("BUCKET_NAME")
+        self.scope = os.getenv("SCOPE_NAME")
+        self.collect = os.getenv("COLLECTION_NAME")
 
-    def get_requests_by_ids(self, request_ids: List[int], api_key: str) -> List[Dict[str, Any]]:
+    def get_requests_by_ids(self, app_id: str, api_key: str) -> List[Dict[str, Any]]:
         """
         Query PostgreSQL for specific request rows by their IDs.
         
@@ -32,37 +34,25 @@ class QueryDB():
         Returns:
             List of request dictionaries with full data
         """
+
+        cluster = Cluster.connect(
+            self.endpoint,
+            ClusterOptions(PasswordAuthenticator(self.user, self.password)))
+        bucket = cluster.bucket(self.bucket)
+        collection = bucket.scope(self.scope).collection(self.collect)
+
         try:
 
-            cursor = self.db.cursor()
-            
-            # SQL query template with safe substitution by user_id
-            query_template = Template("""
-                SELECT id, request_data, created_at 
-                FROM requests 
-                WHERE id = ANY(${request_ids}) AND user_id = ${api_key}
-                ORDER BY created_at DESC
-            """)
-            
-            query = query_template.safe_substitute(
-                request_ids=request_ids,
-                api_key=api_key
+            result = cluster.query(
+                f"""SELECT *
+                FROM "{self.bucket}"
+                WHERE app_id = "{app_id}" 
+                AND api_key = "{api_key}"
+                ORDER BY timestamp DESC
+                LIMIT 50;"""
             )
-            
-            cursor.execute(query)
-            
-            requests = []
-            for row in cursor.fetchall():
-                requests.append({
-                    "id": row[0],
-                    "request_data": json.loads(row[1]) if isinstance(row[1], str) else row[1],
-                    "created_at": row[2].isoformat() if row[2] else None
-                })
-            
-            cursor.close()
-            self.db.close()
-            
-            return requests
+
+            return result
             
         except Exception as e:
             print(f"Database query error: {e}")
