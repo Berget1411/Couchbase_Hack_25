@@ -102,7 +102,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             body = await request.body()
             sender_ip = request.client.host # type: ignore
             request_method = request.method
-            timestamp = datetime.now().strftime("%Y/%m/%d")
+            timestamp = datetime.now().strftime("%Y/%m/%d/%H:%M:%S")
 
             try:
                 body_dict = json.loads(body)

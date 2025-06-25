@@ -110,13 +110,15 @@ async def submit_schema(payload: Dict[str, Any]):
             print("\nCreate document success. CAS: ", result.cas)
         except CouchbaseException as e:
             print(e)
+
+        """
         # Simple K-V operation - to retrieve a document by ID
         try:
             result = cb_coll.get(key)
             print("\nFetch document success. Result: ", result.content_as[dict])
         except CouchbaseException as e:
             print(e)
-        # Simple K-V operation - to update a document by ID
+            
         try:
             payload["name"] = "Couchbase Airways!!"
             result = cb_coll.replace(key, payload)
@@ -126,7 +128,6 @@ async def submit_schema(payload: Dict[str, Any]):
             
         # Simple K-V operation - to delete a document by ID
 
-        """
         try:
             result = cb_coll.remove(key)
             print("\nDelete document success. CAS: ", result.cas)
