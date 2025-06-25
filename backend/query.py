@@ -28,7 +28,7 @@ class QueryDB():
         self.scope = os.getenv("SCOPE_NAME")
         self.collect = os.getenv("COLLECTION_NAME")
 
-    def get_requests_by_ids(self, session_id: str, requests_per_session: int) -> list[dict]:
+    def get_requests_by_ids(self, session_id: int, requests_per_session: int) -> list[dict]:
         """
         Query PostgreSQL for specific request rows by their IDs.
         
@@ -77,6 +77,6 @@ class QueryDB():
 if __name__ == "__main__":
 
     yabadabadu = QueryDB()
-    yaba = yabadabadu.get_requests_by_ids("4806ae52-5ba5-401f-9622-6f3a31483287", 5)
-    for row in yaba.keys():
-        print(yaba[row])
+    yaba = yabadabadu.get_requests_by_ids(776176500, 5)
+    for row in yaba:
+        print(row)
