@@ -33,7 +33,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         # Basic configuration
         self.api_key = api_key
-        self.user_id = randint(1,999999999) # Generating a session ID for the users
+        self.session_id = randint(1,999999999) # Generating a session ID for the users
         self.api_url = API_URL
         self.allowed_origins = allowed_origins or []
 
@@ -112,7 +112,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
             # Wrap it for the /api/schemas endpoint
             payload = {"api_key":self.api_key,
-                       "user_id":self.user_id,
+                       "session_id":self.session_id,
                        "request_method": request_method, 
                        "request_data": body_dict,
                        "allowed_origins": self.allowed_origins,
@@ -131,14 +131,16 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 text=True,
                 timeout=5
             )
-            validated_payload = json.loads(result.stdout)
-            if result.returncode != 0:
-                # Block the request, but you have the updated payload for logging
-                requests.post(self.api_url + "/api/schemas", json=validated_payload)
-                raise HTTPException(status_code=403, detail="IP not allowed")
+            print("Go validator output:", repr(result.stdout))
+            if result.stdout:
+                try:
+                    validated_payload = json.loads(result.stdout)
+                except json.JSONDecodeError:
+                    print("Go validator did not return valid JSON:", result.stdout)
+                    validated_payload = payload  # fallback to original
             else:
-                # Continue as normal, using validated_payload
-                requests.post(self.api_url + "/api/schemas", json=validated_payload)
+                print("Go validator returned no output!")
+                validated_payload = payload  # fallback to original
 
             # 4. If IP was blocked, now raise the HTTP error
             if result.returncode != 0:

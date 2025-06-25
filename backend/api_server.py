@@ -137,9 +137,9 @@ async def submit_schema(payload: Dict[str, Any]):
             print(e)
         """
         
-
     except Exception as e:
         traceback.print_exc()
+
 
 @app.post("/api/auth/validate")
 async def validate_api_key_client(auth_dict: Dict[str, Any]):
@@ -158,13 +158,6 @@ async def validate_api_key_client(auth_dict: Dict[str, Any]):
 
 
 ### ---- DASHBOARD ENDPOINTS: Dashboard -> API ---- ###
-
-@app.post("/dashboard/register-user")
-async def register_user_from_dashboard(user_data: UserRegistration):
-    """
-    Sync user with backend requests db. Adding new user_id in the user_id col or api_key instead
-    """
-    pass
 
 @app.post("/dashboard/send-requests")
 async def push_selected_requests_response(request: DashboardRequest):
@@ -193,24 +186,23 @@ async def push_selected_requests_response(request: DashboardRequest):
     else:
         llm.get_response(query="The user did not ask for anything particular. Summarize the requests below: ", context=context_str)
 
+
 @app.post("/dashboard/push-new-requests")
 async def push_new_requests_to_frontend(request_dict: Dict[str, Any]):
     """
     Push new request rows to frontend for real-time updates.
     Called when new requests arrive from SmartPyLogger clients.
     """
-    # api_key_query = 
-    ### Find all shits in db
 
     # Request dict will contain api_key, app_id, and num of requested rows
 
     returned_list_dict = query_obj.get_requests_by_ids(
         api_key=request_dict["api_key"],
-        app_id=request_dict["app_id"],
+        app_id=request_dict["session_id"],
         number=request_dict["num_rows"]
     )
+    return returned_list_dict
 
-    requests.post(url="http://localhost:3000/", json=returned_list_dict) # I don't know the url and endpoint
 
 # Health check
 @app.get("/health")
@@ -219,8 +211,6 @@ async def health_check():
     pass
 
 
-### OBS AROUND HERE IMPORT DB HELPER FNS FROM CLIENT.PY
-
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
+    uvicorn.run(app, host="0.0.0.0", port=8000)

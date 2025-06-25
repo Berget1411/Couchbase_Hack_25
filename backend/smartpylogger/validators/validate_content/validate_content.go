@@ -11,7 +11,7 @@ import (
 // Defining payload struct
 type PayloadWords struct {
 	APIKey         string                 `json:"api_key"`
-	SessionID      string                 `json:"session_id"`
+	SessionID      int                    `json:"session_id"`
 	RequestMethod  string                 `json:"request_method"`
 	RequestData    map[string]interface{} `json:"request_data"`
 	AllowedOrigins []string               `json:"allowed_origins"`
