@@ -7,6 +7,7 @@ import json
 import os
 from string import Template
 from typing import List, Dict, Any, Optional
+from collections import defaultdict
 
 from couchbase.cluster import Cluster
 from couchbase.options import ClusterOptions, QueryOptions
@@ -27,7 +28,7 @@ class QueryDB():
         self.scope = os.getenv("SCOPE_NAME")
         self.collect = os.getenv("COLLECTION_NAME")
 
-    def get_requests_by_ids(self, app_id: str, api_key: str, number: int) -> list[dict]:
+    def get_requests_by_ids(self, api_key: str, requests_per_session: int) -> dict[str, list[dict]]:
         """
         Query PostgreSQL for specific request rows by their IDs.
         
@@ -47,25 +48,41 @@ class QueryDB():
 
         try:
 
-            query_str = f"""
-            SELECT *
+            query_apps = f"""
+            SELECT DISTINCT session_id
             FROM `{self.bucket}`.`{self.scope}`.`{self.collect}`
-            WHERE app_id = $app_id AND api_key = $api_key
-            ORDER BY timestamp DESC
-            LIMIT $number;
+            WHERE api_key = $api_key;
             """
-
-            result = cluster.query(query_str, QueryOptions(named_parameters={
-                "app_id": app_id,
+            result = cluster.query(query_apps, QueryOptions(named_parameters={
                 "api_key": api_key,
-                "number": number
             }))
 
-            return [row for row in result]
+            session_id_list = [row["session_id"] for row in result]
+
+            grouped: dict[str, list[dict]] = defaultdict(list)
+            
+            for session_id in session_id_list:
+                per_sesh_query = f"""
+                                SELECT *
+                                FROM `{self.bucket}`.`{self.scope}`.`{self.collect}`
+                                WHERE session_id = $session_id AND api_key = $api_key
+                                ORDER BY timestamp DESC
+                                LIMIT $number;
+                                """
+                
+                result = cluster.query(per_sesh_query, QueryOptions(named_parameters={
+                    "session_id": session_id,
+                    "api_key": api_key,
+                    "number": requests_per_session
+                }))
+
+                grouped[str(session_id)] = [row for row in result]
+
+            return grouped
             
         except Exception as e:
             print(f"Database query error: {e}")
-            return []
+            return {}
 
 
     def get_all_user_requests(user_id: str, limit: int = 100) -> list[dict[str, Any]]: # type: ignore
@@ -75,6 +92,6 @@ class QueryDB():
 if __name__ == "__main__":
 
     yabadabadu = QueryDB()
-    yaba = yabadabadu.get_requests_by_ids("DOYpQ6s0SzS1pLhpyCovvK3jdWpKfl7W", "4806ae52-5ba5-401f-9622-6f3a31483287", 5)
-    for row in yaba:
-        print(row)
+    yaba = yabadabadu.get_requests_by_ids("4806ae52-5ba5-401f-9622-6f3a31483287", 5)
+    for row in yaba.keys():
+        print(yaba[row])
