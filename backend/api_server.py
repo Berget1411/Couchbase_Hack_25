@@ -2,20 +2,24 @@
 FastAPI server for SmartPyLogger - handles API requests and database operations
 """
 
-from fastapi import FastAPI, HTTPException, Header
+from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import requests
+
+from datetime import timedelta
+import traceback
+from datetime import datetime
+
 import psycopg2
 import os
 from typing import Optional, List, Any, Dict
 import json
+
 from couchbase.exceptions import CouchbaseException
 from couchbase.auth import PasswordAuthenticator
 from couchbase.cluster import Cluster
 from couchbase.options import ClusterOptions
-from datetime import timedelta
-import traceback
-import requests
 
 from dotenv import load_dotenv
 
@@ -31,7 +35,7 @@ app = FastAPI(title="SmartPyLogger API", version="1.0.0")
 # CORS for dashboard connection
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://dashboard:3000"],
+    allow_origins=["http://localhost:3000", "http://dashboard:3000", ""],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -60,8 +64,7 @@ class UserRegistration(BaseModel):
     valid_data:dict
 
 class PushNewRequests(BaseModel):
-    user_id: str
-    api_key: str
+    api_key: str # I dont know what he wants to send me
 
 
 ### ---- CLIENT ENDPOINTS: SmartPyLogger -> API ---- ###
@@ -79,9 +82,11 @@ async def submit_schema(payload: Dict[str, Any]):
     }
     """
     
-    key = "lebron_james"
+    ### CALL A SNIFFER FUNCTION TO LOOK AT THE PAYLOAD AND VALIDATE IF ITS HAZARDOUS OR NOT
 
-    print(cb_username)
+    key = payload['timestamp'] + ":" + payload["api_key"] + ":" + payload["app_id"]
+    
+    print(payload)
 
     auth = PasswordAuthenticator(cb_username, cb_password)
 
@@ -89,7 +94,7 @@ async def submit_schema(payload: Dict[str, Any]):
     options.apply_profile("wan_development")
 
     try:
-        print("Entered first try")
+        
         cluster = Cluster(endpoint, options)
         # Wait until the cluster is ready for use.
         cluster.wait_until_ready(timedelta(seconds=5))
@@ -99,7 +104,6 @@ async def submit_schema(payload: Dict[str, Any]):
         cb_coll = cb.scope(cb_scope).collection(cb_collection)
         # Simple K-V operation - to create a document with specific ID
         try:
-            print("2nd try")
             result = cb_coll.insert(key, payload)
             print("\nCreate document success. CAS: ", result.cas)
         except CouchbaseException as e:
@@ -117,16 +121,20 @@ async def submit_schema(payload: Dict[str, Any]):
             print("\nUpdate document success. CAS: ", result.cas)
         except CouchbaseException as e:
             print(e)
+            
         # Simple K-V operation - to delete a document by ID
+
         """
         try:
             result = cb_coll.remove(key)
             print("\nDelete document success. CAS: ", result.cas)
         except CouchbaseException as e:
             print(e)
-        
         """
-            
+        
+    
+    ### MAKE SURE TO CLEAR OLD DB ENTRIES
+
     except Exception as e:
         traceback.print_exc()
 
@@ -189,6 +197,12 @@ async def push_new_requests_to_frontend(request: PushNewRequests):
     Push new request rows to frontend for real-time updates.
     Called when new requests arrive from SmartPyLogger clients.
     """
+    # api_key_query = 
+    ### Find all shits in db
+    result_dict = {}
+
+    requests.post(url="http://localhost:3000/", json=result_dict) # I don't know the url and endpoint
+
     pass
 
 # Health check

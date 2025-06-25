@@ -10,7 +10,7 @@ import logging
 import json
 import requests
 from typing import Dict, Any, Optional
-from fastapi import Request, Response
+from fastapi import Request, Response, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.base import RequestResponseEndpoint
 from datetime import datetime
@@ -23,17 +23,18 @@ class ClientError(Exception):
 class LoggingMiddleware(BaseHTTPMiddleware):
     """FastAPI middleware - intercepts requests and sends to api_server.py"""
     
-    def __init__(self, app, api_key: str = "", app_id: str = ""):
+    def __init__(self, app, api_key: str = "", app_id: str = "", allowed_origins: Optional[list[str]] = None):
         """Initialize middleware with API credentials"""
         self.api_key = api_key
         self.app_id = app_id
         self.api_url = API_URL
+        self.allowed_origins = allowed_origins or []
         super().__init__(app) # Inhereting from BaseHTTPMiddleware
 
         ### Validate user RETURNS TRUE OR FALSE
         response = requests.post(
             self.api_url + "/api/auth/validate",
-            json={"api_key": self.api_key, "user_id": self.app_id}
+            json={"api_key": self.api_key, "app_id": self.app_id}
         )
         print(response.json()["isValid"])
         
@@ -57,9 +58,11 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             payload = {"api_key":self.api_key,
                        "app_id":self.app_id,
                        "request_method": request_method, 
-                       "request_data": body_dict, 
-                       "host_ip": sender_ip,
-                       "timestamp": timestamp}
+                       "request_data": body_dict,
+                       "allowed_origins": self.allowed_origins,
+                       "sender_ip": sender_ip,
+                       "timestamp": timestamp,
+                       "flag": 0}
             
             print("Payload being sent to /api/schemas:", payload)
 
@@ -67,9 +70,18 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 self.api_url + "/api/schemas",
                 json=payload
             )
-
-            response = await call_next(request)
             
+            # Check if request_data contains unwanted content
+            if not payload["request_data"]["foo"] == "bar":
+                print("Payload did not match expected format")
+                # Block the request by raising an HTTPException
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Request blocked: Invalid payload format"
+                )
+            
+            # If payload is valid, continue with the request
+            response = await call_next(request)
             return response
         
         elif self.auth == False:

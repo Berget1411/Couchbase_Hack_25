@@ -1,21 +1,44 @@
-# Core dependencies
+# Core FastAPI and web framework dependencies
 fastapi>=0.68.0
 uvicorn>=0.15.0
-requests>=2.25.0
-python-dotenv>=0.19.0
-psycopg2-binary>=2.9.0
-pydantic>=1.8.0
-openai>=1.0.0
+starlette>=0.14.0
 
-# Development dependencies
+# HTTP client and requests
+requests>=2.25.0
+
+# Environment and configuration
+python-dotenv>=0.19.0
+
+# Database dependencies
+psycopg2-binary>=2.9.0
+couchbase>=4.4.0
+
+# Data validation and serialization
+pydantic>=1.8.0
+
+# AI/LLM dependencies
+openai>=1.91.0
+
+# Standard library dependencies (these are built-in, but listed for clarity)
+# json, time, datetime, os, typing, hashlib, string, traceback, subprocess
+
+# Development and testing dependencies
 pytest>=6.0
 pytest-cov>=2.0
+pytest-asyncio>=0.18.0
+
+# Code formatting and linting
 black>=21.0
 flake8>=3.8
 mypy>=0.800
 
-# Build tools
+# Build and packaging tools
 build>=1.2.2.post1
 twine>=6.1.0
-flit==3.12.0
-setuptools==80.9.0
+setuptools>=45.0
+wheel>=0.37.0
+
+# Optional: Additional utilities that might be useful
+# httpx>=0.24.0  # Alternative to requests for async
+# aiofiles>=23.0  # Async file operations
+# python-multipart>=0.0.5  # For file uploads in FastAPI
