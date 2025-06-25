@@ -13,6 +13,10 @@ from couchbase.options import ClusterOptions, QueryOptions
 from couchbase.auth import PasswordAuthenticator
 from couchbase.exceptions import CouchbaseException
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 class QueryDB():
     def __init__(self):
         
@@ -23,7 +27,7 @@ class QueryDB():
         self.scope = os.getenv("SCOPE_NAME")
         self.collect = os.getenv("COLLECTION_NAME")
 
-    def get_requests_by_ids(self, app_id: str, api_key: str) -> List[Dict[str, Any]]:
+    def get_requests_by_ids(self, app_id: str, api_key: str, number: int) -> :
         """
         Query PostgreSQL for specific request rows by their IDs.
         
@@ -43,14 +47,19 @@ class QueryDB():
 
         try:
 
-            result = cluster.query(
-                f"""SELECT *
-                FROM "{self.bucket}"
-                WHERE app_id = "{app_id}" 
-                AND api_key = "{api_key}"
-                ORDER BY timestamp DESC
-                LIMIT 50;"""
-            )
+            query_str = f"""
+            SELECT *
+            FROM `{self.bucket}`.`{self.scope}`.`{self.collect}`
+            WHERE app_id = $app_id AND api_key = $api_key
+            ORDER BY timestamp DESC
+            LIMIT $number;
+            """
+
+            result = cluster.query(query_str, QueryOptions(named_parameters={
+                "app_id": app_id,
+                "api_key": api_key,
+                "number": number
+            }))
 
             return result
             
@@ -62,3 +71,10 @@ class QueryDB():
     def get_all_user_requests(user_id: str, limit: int = 100) -> list[dict[str, Any]]: # type: ignore
         pass
             
+
+if __name__ == "__main__":
+
+    yabadabadu = QueryDB()
+    yaba = yabadabadu.get_requests_by_ids("DOYpQ6s0SzS1pLhpyCovvK3jdWpKfl7W", "4806ae52-5ba5-401f-9622-6f3a31483287")
+    for row in yaba:
+        print(row)
