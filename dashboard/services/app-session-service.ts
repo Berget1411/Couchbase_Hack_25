@@ -9,10 +9,14 @@ export const getAppSession = async (userId: string) => {
   });
 };
 
-export const createAppSession = async (userId: string) => {
+export const createAppSession = async (
+  userId: string,
+  appSessionName?: string
+) => {
   return prisma.appSession.create({
     data: {
       userId: userId,
+      name: appSessionName || "New App Session",
     },
   });
 };
