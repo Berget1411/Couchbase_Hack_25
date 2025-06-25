@@ -11,12 +11,12 @@ export async function POST(request: NextRequest) {
   if (keyIsValid) {
     const user = await getUserByApiKey(apiKey);
     if (!user) {
-      return NextResponse.json({ appSessionId: 0 });
+      return NextResponse.json({ appSessionId: "0" });
     }
 
     const appSession = await createAppSession(user.id);
     return NextResponse.json({ appSessionId: appSession.id });
   } else {
-    return NextResponse.json({ appSessionId: 0 });
+    return NextResponse.json({ appSessionId: "0" });
   }
 }
