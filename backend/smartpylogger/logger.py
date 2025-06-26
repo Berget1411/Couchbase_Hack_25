@@ -53,15 +53,16 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         super().__init__(app) # Inhereting from BaseHTTPMiddleware
 
+        self.app_name = getattr(app, "title", None)
 
         ### ---- VALIDATE USER ---- ###
 
         ### Check if API key is provided and return session ID if it is, otherwise raise error
         response = httpx.post(
             self.api_url + "/api/auth/validate",
-            json={"api_key": self.api_key}
+            json={"api_key": self.api_key, "appSessionName": self.app_name}
         )
-
+        
         self.auth = response.json()["app_session_id"] ### Get session ID to see if API key is valid
 
         if self.auth != "0":
@@ -133,6 +134,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         # Wrap it for the /api/schemas endpoint
         payload = {"api_key":self.api_key,
                     "session_id":self.session_id,
+                    "app_name": self.app_name,
                     "request_method": request_method, 
                     "request_data": body_dict,
                     "allowed_origins": self.allowed_origins,
