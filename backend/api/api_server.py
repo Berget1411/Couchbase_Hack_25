@@ -6,12 +6,12 @@ from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
+import subprocess
 
 from datetime import timedelta
 import traceback
 from datetime import datetime
 
-import psycopg2
 import os
 from typing import Optional, List, Any, Dict
 import json
@@ -110,14 +110,14 @@ async def submit_schema(payload: Dict[str, Any]):
         except CouchbaseException as e:
             print(e)
 
-        """
+        
         # Simple K-V operation - to retrieve a document by ID
         try:
             result = cb_coll.get(key)
             print("\nFetch document success. Result: ", result.content_as[dict])
         except CouchbaseException as e:
             print(e)
-            
+        """    
         try:
             payload["name"] = "Couchbase Airways!!"
             result = cb_coll.replace(key, payload)
@@ -167,21 +167,7 @@ async def push_selected_requests_response(request: DashboardRequest):
     - With request_ids + no chat_message = Feed to LLM and revert to standard prompt to summarize what they are likely to mean  
     - With request_ids + chat_message = Return selected requests + LLM analysis with regard to ur query
     """
-
-    llm = LLM()
-    query_db = QueryDB()
-
-    queried_requests: list[dict[str, Any]] = []
-
-    ### LLM LOGIC GOES HERE
-
-    context_str = json.dumps(queried_requests)
-
-    if request.chat_message is not None:
-        llm.get_response(query=request.chat_message, context=context_str)
-    else:
-        llm.get_response(query="The user did not ask for anything particular. Summarize the requests below: ", context=context_str)
-
+    run.su
 
 @app.post("/dashboard/push-new-requests")
 async def push_new_requests_to_frontend(request_dict: Dict[str, Any]):
