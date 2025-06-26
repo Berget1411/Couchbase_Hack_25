@@ -42,9 +42,9 @@ class QueryDB():
 
         cluster = Cluster.connect(
             self.endpoint,
-            ClusterOptions(PasswordAuthenticator(self.user, self.password)))
+            ClusterOptions(PasswordAuthenticator(self.user, self.password))) # type: ignore
         bucket = cluster.bucket(self.bucket)
-        collection = bucket.scope(self.scope).collection(self.collect)
+        collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
 
         try:
 
@@ -72,6 +72,26 @@ class QueryDB():
 
     def get_all_user_requests(user_id: str, limit: int = 100) -> list[dict[str, Any]]: # type: ignore
         pass
+
+    def clear_database(self) -> None:
+        """
+        Clear all data from the database.
+
+        OBS IDK IF THIS WORKS, TEST IT FIRST
+        """
+        cluster = Cluster.connect(
+            self.endpoint,
+            ClusterOptions(PasswordAuthenticator(self.user, self.password)))
+        
+        bucket = cluster.bucket(self.bucket)
+        collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
+        try:
+            # Clear all documents in the collection
+            query = f"DELETE FROM `{self.bucket}`.`{self.scope}`.`{self.collect}`"
+            cluster.query(query)
+            print("Database cleared successfully.")
+        except CouchbaseException as e:
+            print(f"Error clearing database: {e}")
             
 
 if __name__ == "__main__":

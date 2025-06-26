@@ -56,17 +56,18 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         ### ---- VALIDATE USER ---- ###
 
+        ### Check if API key is provided and return session ID if it is, otherwise raise error
         response = httpx.post(
             self.api_url + "/api/auth/validate",
             json={"api_key": self.api_key}
         )
+
         self.auth = response.json()["app_session_id"] ### Get session ID to see if API key is valid
 
         if self.auth != "0":
             print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    API key loaded successfully. Session initialization...")
             print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    Session init success! Session ID: "
                   f"{Fore.BLUE}{str(self.auth)}")
-
             
         elif self.auth == "0":
             print(f"{Fore.RED}[ERROR]:    Invalid API key")
@@ -81,6 +82,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 status_code=500,
                 detail="Unknown error during API key validation"
             )
+        
 
         ### ---- CHECK USER MACHINE AND PICK EXEC. PATH ---- ###
 
