@@ -25,13 +25,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-### File imports
-from backend.api.query import QueryDB
-
-### Other class and file imports
-from backend.api.client import Utils
-from backend.api.infer import LLM
-from backend.api.query import QueryDB
+### Class and file imports
+from client import Utils
+from infer import LLM
+from query import QueryDB
 
 query_obj = QueryDB() # Initialize query object for database operations
 
@@ -176,11 +173,7 @@ async def push_selected_requests_response(request: DashboardRequest):
 
     queried_requests: list[dict[str, Any]] = []
 
-    if request.request_ids is not None:
-        queried_requests = query_db.get_requests_by_ids(
-            api_key=request.api_key,
-            request_ids=request.request_ids
-        )
+    ### LLM LOGIC GOES HERE
 
     context_str = json.dumps(queried_requests)
 
@@ -200,8 +193,8 @@ async def push_new_requests_to_frontend(request_dict: Dict[str, Any]):
     # Request dict will contain app_id, and num of requested rows
 
     returned_list_dict = query_obj.get_requests_by_ids(
-        app_id=request_dict["session_id"],
-        number=request_dict["num_rows"]
+        session_id=request_dict["session_id"],
+        requests_per_session=request_dict["num_rows"]
     )
     return returned_list_dict
 

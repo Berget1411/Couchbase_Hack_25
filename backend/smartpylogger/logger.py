@@ -7,12 +7,17 @@ api_server.py handles all database operations and dashboard communication
 
 import subprocess
 import os
+import time
 import platform
 from datetime import datetime
 from random import randint
 
+# Colors for console output
+from colorama import Fore, Style
+
 import json
-import requests
+# import requests
+import httpx # replace requests with httpx for async support & speed
 from typing import Dict, Any, Optional
 
 from fastapi import Request, Response, HTTPException
@@ -31,6 +36,11 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, api_key: str = "", allowed_origins: Optional[list[str]] = None):
         """Initialize middleware with API credentials"""
 
+        # Timing start:
+        start = time.perf_counter()
+
+        print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    Initializing LoggingMiddleware...")
+
         # Basic configuration
         self.api_key = api_key
         self.session_id = 0
@@ -45,40 +55,39 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
 
         ### ---- VALIDATE USER ---- ###
-        response = requests.post(
+
+        response = httpx.post(
             self.api_url + "/api/auth/validate",
             json={"api_key": self.api_key}
         )
-        print(response.json()["app_session_id"]) ### Returns session ID
-        
-        self.auth = response.json()["isValid"] ### Returns true or false
+        self.auth = response.json()["app_session_id"] ### Get session ID to see if API key is valid
 
         if self.auth != "0":
-            print("API key loaded successfully.")
-            print("Session Initialized.")
-            self.session_id = response.json()["app_session_id"]  # Get session ID from response
+            print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    API key loaded successfully. Session initialization...")
+            print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    Session init success! Session ID: "
+                  f"{Fore.BLUE}{str(self.auth)}")
+
             
         elif self.auth == "0":
-            print("Invalid API key")
+            print(f"{Fore.RED}[ERROR]:    Invalid API key")
             raise HTTPException(
                 status_code=401,
                 detail="Invalid API key"
             )
         
         else:
-            print("Unknown error during API key validation or session initialization")
+            print(f"{Fore.RED}[ERROR]:      Unknown error during API key validation or session initialization")
             raise HTTPException(
                 status_code=500,
                 detail="Unknown error during API key validation"
             )
-        
 
         ### ---- CHECK USER MACHINE AND PICK EXEC. PATH ---- ###
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
         system = platform.system().lower()
         try:
-            if system == "windows": # Windows
+            if system == "windows": # obviously
                 self.ip_validator_path = os.path.join(current_dir, "validators", "ip_validator_windows.exe")
                 self.content_validator_path = os.path.join(current_dir, "validators", "contains_windows.exe")
 
@@ -91,17 +100,23 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 self.content_validator_path = os.path.join(current_dir, "validators", "contains_linux")
 
         except Exception as e:
-            print(f"Error setting validator paths: {e}")
+            print(f"{Fore.RED}[ERROR]:     Error setting validator paths: {e}")
             raise HTTPException(
                 status_code=500,
                 detail="Error setting validator paths"
             )
 
-        print(f"You're all set up! Using {system} validators.")
+        print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    You're all set up! Using {system} validators.")
+
+        # Timing end:
+        end = time.perf_counter()
+
+        print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    LoggingMiddleware initialized in {1000 * (end - start):.3f} ms.")
     
-    
+
+    ### ---- MAIN ASYNC DISPATCH METHOD ---- ###
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response: # type: ignore
-        """Intercept request/response and send to api_server.py"""
+        """Intercept request/response, sensor for bad words quickly and send off to api_server.py"""
         # Read the request body & load to JSON to send off to API
         body = await request.body()
         sender_ip = request.client.host # type: ignore
@@ -132,28 +147,41 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             text=True,
             timeout=5
         )
-        print("Go validator output:", repr(result.stdout))
+
+        print("Go IP validator output:", repr(result.stdout))
         if result.stdout:
             try:
                 validated_payload = json.loads(result.stdout)
+                print("Go validator returned valid JSON:", validated_payload)
             except json.JSONDecodeError:
                 print("Go validator did not return valid JSON:", result.stdout)
-                validated_payload = payload  # fallback to original
+                validated_payload = payload  # fallback to original here
         else:
             print("Go validator returned no output!")
-            validated_payload = payload  # fallback to original
+            validated_payload = payload  # fallback to original also
 
-        # 4. If IP was blocked, now raise the HTTP error
+        # 4. If IP was blocked, now raise the HTTP error COPY OF CORS BROTHA
         if result.returncode != 0:
             raise HTTPException(
                 status_code=403,
                 detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
             )
 
-        requests.post(
+        httpx.post(
             self.api_url + "/api/schemas",
             json=validated_payload
         )
+
+        # 2. CONTENT VALIDATION (non-fatal, but log)
+        content_validator_path = self.content_validator_path
+        result = subprocess.run(
+            [content_validator_path, payload_json],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        print("Go validator output:", repr(result.stdout))
+
 
         # 5. Otherwise, continue as normal
         response = await call_next(request)

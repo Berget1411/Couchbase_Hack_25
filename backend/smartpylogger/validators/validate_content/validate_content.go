@@ -51,6 +51,8 @@ func loadBannedWords(filename string) ([]string, error) {
 
 // Function to check if the content contains any banned words
 func contains(content string, bannedWords []string) bool {
+	fmt.Println("DEBUG: content =", content)
+	fmt.Println("DEBUG: bannedWords =", bannedWords)
 	contentLower := strings.ToLower(content)
 
 	for _, word := range bannedWords {
@@ -71,6 +73,7 @@ func main() {
 
 	// Read the JSON payload from command line argument
 	payloadJSON := os.Args[1]
+	fmt.Println("DEBUG: payloadJSON =", payloadJSON)
 
 	// Load banned words from file
 	bannedWords, err := loadBannedWords("bad_words")
@@ -89,6 +92,7 @@ func main() {
 
 	// Validation 1: Check if request_data contains banned words
 	requestDataStr := fmt.Sprintf("%v", payload.RequestData)
+	fmt.Println("DEBUG: request_data =", requestDataStr)
 	hasBannedWords := contains(requestDataStr, bannedWords)
 
 	if hasBannedWords {
