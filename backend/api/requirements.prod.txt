@@ -1,0 +1,24 @@
+# Core FastAPI and web framework
+fastapi>=0.68.0
+uvicorn>=0.15.0
+starlette>=0.14.0
+
+# duhhhh (maybe change to httpx)
+httpx>=0.18.0
+requests>=2.25.0
+
+# Environment n config
+python-dotenv>=0.19.0
+
+# Database
+psycopg2-binary>=2.9.0
+couchbase>=4.4.0
+
+# Not rly used but exists
+pydantic>=1.8.0
+
+# AI/LLM
+openai>=1.91.0
+
+# Health check
+curl_cffi>=0.5.0 

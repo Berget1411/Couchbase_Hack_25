@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      # Database
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_NAME=${DB_NAME:-smartpylogger_db}
+      - DB_USER=${DB_USER:-admin}
+      - DB_PASSWORD=${DB_PASSWORD:-admin}
+      - DB_PORT=${DB_PORT:-5432}
+      
+      # Couchbase
+      - CB_USER=${CB_USER}
+      - CB_PASSWORD=${CB_PASSWORD}
+      - BUCKET_NAME=${BUCKET_NAME}
+      - SCOPE_NAME=${SCOPE_NAME}
+      - COLLECTION_NAME=${COLLECTION_NAME}
+      
+      # OpenAI
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      
+      # API Configuration
+      - API_KEY_SECRET=${API_KEY_SECRET}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s 
