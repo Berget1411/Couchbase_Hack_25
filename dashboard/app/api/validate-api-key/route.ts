@@ -4,7 +4,7 @@ import { createAppSession } from "@/services/app-session-service";
 import { getUserByApiKey } from "@/services/user-service";
 
 export async function POST(request: NextRequest) {
-  const { apiKey } = await request.json();
+  const { apiKey, appSessionName } = await request.json();
 
   const keyIsValid = await validateApiKey(apiKey);
 
@@ -14,7 +14,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ appSessionId: "0" });
     }
 
-    const appSession = await createAppSession(user.id);
+    const appSession = await createAppSession(
+      user.id,
+      appSessionName || "New App Session"
+    );
     return NextResponse.json({ appSessionId: appSession.id });
   } else {
     return NextResponse.json({ appSessionId: "0" });
