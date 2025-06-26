@@ -88,45 +88,19 @@ func main() {
 	}
 
 	// Validation 1: Check if request_data contains banned words
-	requestDataBytes, _ := json.Marshal(payload.RequestData)
-	requestDataStr := string(requestDataBytes)
+	requestDataStr := fmt.Sprintf("%v", payload.RequestData)
 	hasBannedWords := contains(requestDataStr, bannedWords)
 
-	// If validation fails, set flag to 1
 	if hasBannedWords {
 		payload.Flag = 1
-
-		// Create response with updated flag
-		response := map[string]interface{}{
-			"api_key":         payload.APIKey,
-			"session_id":      payload.SessionID,
-			"request_method":  payload.RequestMethod,
-			"request_data":    payload.RequestData,
-			"allowed_origins": payload.AllowedOrigins,
-			"sender_ip":       payload.SenderIP,
-			"timestamp":       payload.Timestamp,
-			"flag":            payload.Flag,
-		}
-
-		// Convert back to JSON and print
-		responseJSON, _ := json.Marshal(response)
-		fmt.Println(string(responseJSON))
+		// Print JSON and exit 1
+		output, _ := json.Marshal(payload)
+		fmt.Println(string(output))
 		os.Exit(1)
 	}
 
-	// If validation passes, keep flag as 0 and return original payload
-	response := map[string]interface{}{
-		"api_key":         payload.APIKey,
-		"session_id":      payload.SessionID,
-		"request_method":  payload.RequestMethod,
-		"request_data":    payload.RequestData,
-		"allowed_origins": payload.AllowedOrigins,
-		"sender_ip":       payload.SenderIP,
-		"timestamp":       payload.Timestamp,
-		"flag":            payload.Flag, // This will be 0
-	}
-
-	responseJSON, _ := json.Marshal(response)
-	fmt.Println(string(responseJSON))
+	// If no banned words, print JSON and exit 0
+	output, _ := json.Marshal(payload)
+	fmt.Println(string(output))
 	os.Exit(0)
 }

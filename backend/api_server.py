@@ -84,7 +84,7 @@ async def submit_schema(payload: Dict[str, Any]):
     }
     """
 
-    key = payload['timestamp'] + ":" + payload["api_key"] + ":" + payload["app_id"]
+    key = payload['timestamp'] + ":" + payload["api_key"] + ":" + str(payload["session_id"])
     
     print(payload)
 
@@ -94,7 +94,7 @@ async def submit_schema(payload: Dict[str, Any]):
     options.apply_profile("wan_development")
 
     try:
-        
+        print("SENDING")
         cluster = Cluster(endpoint, options) # type: ignore
 
         # Wait until the cluster is ready for use.
@@ -150,11 +150,14 @@ async def validate_api_key_client(auth_dict: Dict[str, Any]):
 
     response = requests.post("http://localhost:3000/api/validate-api-key", json=auth_dict)
 
-    print(response.json())
-    response_val = response.json()["isValid"]
+    print(response.json)
+
+    response_val = response.json()["appSessionId"]  # Get session ID from response
+
+    #print(response_val)
     # print(type(response_val))
 
-    return {"isValid": response_val} # True or false
+    return {"app_session_id": response_val} # True or false
 
 
 ### ---- DASHBOARD ENDPOINTS: Dashboard -> API ---- ###
@@ -194,10 +197,9 @@ async def push_new_requests_to_frontend(request_dict: Dict[str, Any]):
     Called when new requests arrive from SmartPyLogger clients.
     """
 
-    # Request dict will contain api_key, app_id, and num of requested rows
+    # Request dict will contain app_id, and num of requested rows
 
     returned_list_dict = query_obj.get_requests_by_ids(
-        api_key=request_dict["api_key"],
         app_id=request_dict["session_id"],
         number=request_dict["num_rows"]
     )

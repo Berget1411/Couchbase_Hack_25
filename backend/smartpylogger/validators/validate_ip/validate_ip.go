@@ -54,7 +54,7 @@ func main() {
 	isAllowed := isIPAllowed(payload.SenderIP, payload.AllowedOrigins)
 
 	if !isAllowed {
-		payload.Flag = 2 // or 1, or whatever you want to indicate IP block
+		payload.Flag = 2
 		exitCode = 1
 	}
 

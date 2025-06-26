@@ -33,7 +33,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         # Basic configuration
         self.api_key = api_key
-        self.session_id = randint(1,999999999) # Generating a session ID for the users
+        self.session_id = 0
         self.api_url = API_URL
         self.allowed_origins = allowed_origins or []
 
@@ -49,20 +49,24 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             self.api_url + "/api/auth/validate",
             json={"api_key": self.api_key}
         )
-        print(response.json()["isValid"])
+        print(response.json()["app_session_id"]) ### Returns session ID
         
         self.auth = response.json()["isValid"] ### Returns true or false
 
-        if self.auth is True:
-            print("Valid API key")
-        elif self.auth is False:
+        if self.auth != "0":
+            print("API key loaded successfully.")
+            print("Session Initialized.")
+            self.session_id = response.json()["app_session_id"]  # Get session ID from response
+            
+        elif self.auth == "0":
             print("Invalid API key")
             raise HTTPException(
                 status_code=401,
                 detail="Invalid API key"
             )
+        
         else:
-            print("Unknown error during API key validation")
+            print("Unknown error during API key validation or session initialization")
             raise HTTPException(
                 status_code=500,
                 detail="Unknown error during API key validation"
@@ -97,64 +101,60 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     
     
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response: # type: ignore
-        if self.auth is True:
-            """Intercept request/response and send to api_server.py"""
-            # Read the request body & load to JSON to send off to API
-            body = await request.body()
-            sender_ip = request.client.host # type: ignore
-            request_method = request.method
-            timestamp = datetime.now().strftime("%Y/%m/%d/%H:%M:%S")
+        """Intercept request/response and send to api_server.py"""
+        # Read the request body & load to JSON to send off to API
+        body = await request.body()
+        sender_ip = request.client.host # type: ignore
+        request_method = request.method
+        timestamp = datetime.now().strftime("%Y/%m/%d/%H:%M:%S")
 
-            try:
-                body_dict = json.loads(body)
-            except Exception:
-                body_dict = {}
+        try:
+            body_dict = json.loads(body)
+        except Exception:
+            body_dict = {}
 
-            # Wrap it for the /api/schemas endpoint
-            payload = {"api_key":self.api_key,
-                       "session_id":self.session_id,
-                       "request_method": request_method, 
-                       "request_data": body_dict,
-                       "allowed_origins": self.allowed_origins,
-                       "sender_ip": sender_ip,
-                       "timestamp": timestamp,
-                       "flag": 0}
-            
-            print("Payload being sent to /api/schemas:", payload)
-
-            # 1. IP VALIDATION (fatal, but log first)
-            ip_validator_path = self.ip_validator_path
-            payload_json = json.dumps(payload)
-            result = subprocess.run(
-                [ip_validator_path, payload_json],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            print("Go validator output:", repr(result.stdout))
-            if result.stdout:
-                try:
-                    validated_payload = json.loads(result.stdout)
-                except json.JSONDecodeError:
-                    print("Go validator did not return valid JSON:", result.stdout)
-                    validated_payload = payload  # fallback to original
-            else:
-                print("Go validator returned no output!")
-                validated_payload = payload  # fallback to original
-
-            # 4. If IP was blocked, now raise the HTTP error
-            if result.returncode != 0:
-                raise HTTPException(
-                    status_code=403,
-                    detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
-                )
-
-            # 5. Otherwise, continue as normal
-            response = await call_next(request)
-            return response
+        # Wrap it for the /api/schemas endpoint
+        payload = {"api_key":self.api_key,
+                    "session_id":self.session_id,
+                    "request_method": request_method, 
+                    "request_data": body_dict,
+                    "allowed_origins": self.allowed_origins,
+                    "sender_ip": sender_ip,
+                    "timestamp": timestamp,
+                    "flag": 0}
         
-        elif self.auth == False:
-            print("invalid API key")
-
+        # 1. IP VALIDATION (fatal, but log first)
+        ip_validator_path = self.ip_validator_path
+        payload_json = json.dumps(payload)
+        result = subprocess.run(
+            [ip_validator_path, payload_json],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        print("Go validator output:", repr(result.stdout))
+        if result.stdout:
+            try:
+                validated_payload = json.loads(result.stdout)
+            except json.JSONDecodeError:
+                print("Go validator did not return valid JSON:", result.stdout)
+                validated_payload = payload  # fallback to original
         else:
-            raise ClientError("I dont know")
+            print("Go validator returned no output!")
+            validated_payload = payload  # fallback to original
+
+        # 4. If IP was blocked, now raise the HTTP error
+        if result.returncode != 0:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
+            )
+
+        requests.post(
+            self.api_url + "/api/schemas",
+            json=validated_payload
+        )
+
+        # 5. Otherwise, continue as normal
+        response = await call_next(request)
+        return response
