@@ -26,12 +26,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ### File imports
-from query import QueryDB
+from backend.api.query import QueryDB
 
 ### Other class and file imports
-from client import Utils
-from infer import LLM
-from query import QueryDB
+from backend.api.client import Utils
+from backend.api.infer import LLM
+from backend.api.query import QueryDB
 
 query_obj = QueryDB() # Initialize query object for database operations
 
