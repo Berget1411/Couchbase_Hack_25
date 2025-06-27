@@ -90,17 +90,10 @@ model AppSession {
 model AppGithubRepo {
   id String @id @default(cuid())
   name String
-  fullName String
-  description String?
   url String
-  stars Int
-  forks Int?
-  issues Int?
-  pullRequests Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   appSessions AppSession[]
-  @@unique([fullName])
   @@map("app_github_repo")
 }
 

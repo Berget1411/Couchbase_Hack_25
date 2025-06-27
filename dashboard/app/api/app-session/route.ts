@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAppSessionByUserId } from "@/lib/api/dashboard/app-session-fetch";
 import { auth } from "@/lib/auth";
-import { createAppSession } from "@/services/app-session-service";
+import {
+  createAppSession,
+  getAppSessionsByUserId,
+} from "@/services/app-session-service";
 
 export async function GET(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
@@ -9,8 +11,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const appSession = await getAppSessionByUserId(session.user.id);
-  return NextResponse.json(appSession);
+  const appSessions = await getAppSessionsByUserId(session.user.id);
+  return NextResponse.json(appSessions);
 }
 
 export async function POST(request: NextRequest) {
@@ -19,6 +21,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const appSession = await createAppSession(session.user.id);
+  const body = await request.json();
+  const { appSessionName } = body;
+  const appSession = await createAppSession(session.user.id, appSessionName);
   return NextResponse.json(appSession);
 }

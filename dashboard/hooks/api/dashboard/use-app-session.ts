@@ -1,32 +1,55 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getAppSession,
   createAppSession,
   updateAppSession,
   deleteAppSession,
+  getAppSessionByUserId,
 } from "@/lib/api/dashboard/app-session-fetch";
 
-export const useGetAppSession = (appId: string) => {
+export const useGetAppSession = (appSessionId: string) => {
   return useQuery({
-    queryKey: ["appSession", appId],
-    queryFn: () => getAppSession(appId),
+    queryKey: ["appSession", appSessionId],
+    queryFn: () => getAppSession(appSessionId),
+    enabled: !!appSessionId,
+  });
+};
+
+export const useGetAppSessionsByUserId = () => {
+  return useQuery({
+    queryKey: ["appSessions"],
+    queryFn: () => getAppSessionByUserId(),
   });
 };
 
 export const useCreateAppSession = () => {
   return useMutation({
-    mutationFn: createAppSession,
+    mutationFn: (appSessionName?: string) => createAppSession(appSessionName),
   });
 };
 
-export const useUpdateAppSession = (appId: string) => {
+export const useUpdateAppSession = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: () => updateAppSession(appId),
+    mutationFn: ({
+      appSessionId,
+      githubRepoId,
+    }: {
+      appSessionId: string;
+      githubRepoId?: string;
+    }) => updateAppSession(appSessionId, githubRepoId),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["appSession", variables.appSessionId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["appSessions"] });
+    },
   });
 };
 
-export const useDeleteAppSession = (appId: string) => {
+export const useDeleteAppSession = () => {
   return useMutation({
-    mutationFn: () => deleteAppSession(appId),
+    mutationFn: (appSessionId: string) => deleteAppSession(appSessionId),
   });
 };
