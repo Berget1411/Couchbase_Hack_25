@@ -33,7 +33,7 @@ class ClientError(Exception):
 class LoggingMiddleware(BaseHTTPMiddleware):
     """FastAPI middleware - intercepts requests and sends to api_server.py"""
     
-    def __init__(self, app, api_key: str = "", allowed_origins: Optional[list[str]] = None, api_limit_daily: int = 1000):
+    def __init__(self, app, api_key: str = "", allowed_origins: Optional[list[str]] = None, api_limit_daily: int = 1000, censored_words: Optional[list[str]] = None, banned_words_path: Optional[str] = None):
         """Initialize middleware with API credentials"""
 
         print(f"""{Fore.GREEN}
@@ -68,8 +68,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 ..| PPPP_______/...| YYYY...| YYYY.............................=*%%##*#%%=..........
 ..| PPPP............( YYYYYYYYYYYY.....ooo....................=+%%%#**%%+...........
 ..| PPPP.............( YYYYY_/YYYY.../OOOOO....-.............:=+###**#%#:...........
-../____/..............(__/.| YYYY...| OOO....................=+#%#**#%#:............
-...................../YYYY..| YYYY..(__/...................:=+***++++**-............
+../____/..............(__/.| YYYY....| OOO....................=+#%#**#%#:...........
+...................../YYYY..| YYYY....(__/...................:=+***++++**-..........
 .............-......| YYYYY/ YYYYY...-..............................................
 .....................( YYYYYYYYYY...................................................
 .......-..............(________/....................................................
@@ -94,6 +94,8 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
         self.api_url = API_URL
         self.allowed_origins = allowed_origins or []
         self.api_limit_daily = api_limit_daily  # Limit for API requests, default to 1000
+        self.censored_words = censored_words or []
+        self.banned_words_path = banned_words_path
 
         # Validator paths
         self.content_validator_path = ""
@@ -230,8 +232,9 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
 
         # 2. CONTENT VALIDATION (non-fatal, but log)
         content_validator_path = self.content_validator_path
+        banned_words_path = self.banned_words_path or "bad_words.txt"  # fallback if not set
         result = subprocess.run(
-            [content_validator_path, payload_json],
+            [content_validator_path, payload_json, banned_words_path],
             capture_output=True,
             text=True,
             timeout=5

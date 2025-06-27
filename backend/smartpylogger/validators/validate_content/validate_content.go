@@ -73,14 +73,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Read the JSON payload from command line argument
 	payloadJSON := os.Args[1]
-	os.Stderr.WriteString("DEBUG: payloadJSON =" + payloadJSON)
 
-	// Load banned words from file
-	exePath, _ := os.Executable()
-	exeDir := filepath.Dir(exePath)
-	bannedWordsPath := filepath.Join(exeDir, "bad_words")
+	// Default path
+	bannedWordsPath := "bad_words.txt"
+	// If a second argument is provided, use it as the banned words file
+	if len(os.Args) >= 3 {
+		bannedWordsPath = os.Args[2]
+	}
+
 	bannedWords, err := loadBannedWords(bannedWordsPath)
 	if err != nil {
 		fmt.Printf("ERROR: Failed to load banned words: %v\n", err)
