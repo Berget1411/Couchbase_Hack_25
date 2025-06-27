@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -77,7 +78,10 @@ func main() {
 	fmt.Println("DEBUG: payloadJSON =", payloadJSON)
 
 	// Load banned words from file
-	bannedWords, err := loadBannedWords("bad_words")
+	exePath, _ := os.Executable()
+	exeDir := filepath.Dir(exePath)
+	bannedWordsPath := filepath.Join(exeDir, "bad_words")
+	bannedWords, err := loadBannedWords(bannedWordsPath)
 	if err != nil {
 		fmt.Printf("ERROR: Failed to load banned words: %v\n", err)
 		os.Exit(1)

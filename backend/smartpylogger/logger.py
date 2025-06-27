@@ -212,6 +212,19 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
             validated_payload = payload  # fallback to original also
 
 
+        # 4. If IP was blocked, now raise the HTTP error COPY OF CORS BROTHA
+        if result.returncode != 0:
+
+            httpx.post(
+                self.api_url + "/api/schemas",
+                json=validated_payload
+            )
+            raise HTTPException(
+                status_code=403,
+                detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
+            )
+        
+
         # 2. CONTENT VALIDATION (non-fatal, but log)
         content_validator_path = self.content_validator_path
         result = subprocess.run(
@@ -226,13 +239,6 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
             self.api_url + "/api/schemas",
             json=validated_payload
         )
-
-        # 4. If IP was blocked, now raise the HTTP error COPY OF CORS BROTHA
-        if result.returncode != 0:
-            raise HTTPException(
-                status_code=403,
-                detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
-            )
 
         # Decriment the API limit
         self.api_limit_daily -= 1
