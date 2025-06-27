@@ -29,16 +29,6 @@ class QueryDB():
         self.collect = os.getenv("COLLECTION_NAME")
 
     def get_requests_by_ids(self, session_id: int, requests_per_session: int) -> list[dict]:
-        """
-        Query PostgreSQL for specific request rows by their IDs.
-        
-        Args:
-            request_ids: List of request IDs to fetch (rows)
-            user_id: User ID for security (only fetch user's own requests)
-        
-        Returns:
-            List of request dictionaries with full data
-        """
 
         cluster = Cluster.connect(
             self.endpoint,
