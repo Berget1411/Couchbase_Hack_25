@@ -33,7 +33,7 @@ class ClientError(Exception):
 class LoggingMiddleware(BaseHTTPMiddleware):
     """FastAPI middleware - intercepts requests and sends to api_server.py"""
     
-    def __init__(self, app, api_key: str = "", allowed_origins: Optional[list[str]] = None):
+    def __init__(self, app, api_key: str = "", allowed_origins: Optional[list[str]] = None, api_limit_daily: int = 1000):
         """Initialize middleware with API credentials"""
 
         print(f"""{Fore.GREEN}
@@ -93,6 +93,7 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
         self.session_id = 0
         self.api_url = API_URL
         self.allowed_origins = allowed_origins or []
+        self.api_limit_daily = api_limit_daily  # Limit for API requests, default to 1000
 
         # Validator paths
         self.content_validator_path = ""
@@ -166,74 +167,84 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
 
     ### ---- MAIN ASYNC DISPATCH METHOD ---- ###
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response: # type: ignore
-        """Intercept request/response, sensor for bad words quickly and send off to api_server.py"""
-        # Read the request body & load to JSON to send off to API
-        body = await request.body()
-        sender_ip = request.client.host # type: ignore
-        request_method = request.method
-        timestamp = datetime.now().strftime("%Y/%m/%d/%H:%M:%S")
 
-        try:
-            body_dict = json.loads(body)
-        except Exception:
-            body_dict = {}
+        while self.api_limit_daily <= 0:
+            """Intercept request/response, sensor for bad words quickly and send off to api_server.py"""
+            # Read the request body & load to JSON to send off to API
+            body = await request.body()
+            sender_ip = request.client.host # type: ignore
+            request_method = request.method
+            timestamp = datetime.now().strftime("%Y/%m/%d/%H:%M:%S")
 
-        # Wrap it for the /api/schemas endpoint
-        payload = {"api_key":self.api_key,
-                    "session_id":self.session_id,
-                    "app_name": self.app_name,
-                    "request_method": request_method, 
-                    "request_data": body_dict,
-                    "allowed_origins": self.allowed_origins,
-                    "sender_ip": sender_ip,
-                    "timestamp": timestamp,
-                    "flag": 0}
-        
-        # 1. IP VALIDATION (fatal, but log first)
-        ip_validator_path = self.ip_validator_path
-        payload_json = json.dumps(payload)
-        result = subprocess.run(
-            [ip_validator_path, payload_json],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-
-        print("Go IP validator output:", repr(result.stdout))
-        if result.stdout:
             try:
-                validated_payload = json.loads(result.stdout)
-                print("Go validator returned valid JSON:", validated_payload)
-            except json.JSONDecodeError:
-                print("Go validator did not return valid JSON:", result.stdout)
-                validated_payload = payload  # fallback to original here
-        else:
-            print("Go validator returned no output!")
-            validated_payload = payload  # fallback to original also
+                body_dict = json.loads(body)
+            except Exception:
+                body_dict = {}
 
-
-        # 2. CONTENT VALIDATION (non-fatal, but log)
-        content_validator_path = self.content_validator_path
-        result = subprocess.run(
-            [content_validator_path, payload_json],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        print("Go validator output:", repr(result.stdout))
-
-        httpx.post(
-            self.api_url + "/api/schemas",
-            json=validated_payload
-        )
-
-        # 4. If IP was blocked, now raise the HTTP error COPY OF CORS BROTHA
-        if result.returncode != 0:
-            raise HTTPException(
-                status_code=403,
-                detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
+            # Wrap it for the /api/schemas endpoint
+            payload = {"api_key":self.api_key,
+                        "session_id":self.session_id,
+                        "app_name": self.app_name,
+                        "request_method": request_method, 
+                        "request_data": body_dict,
+                        "allowed_origins": self.allowed_origins,
+                        "sender_ip": sender_ip,
+                        "timestamp": timestamp,
+                        "flag": 0}
+            
+            # 1. IP VALIDATION (fatal, but log first)
+            ip_validator_path = self.ip_validator_path
+            payload_json = json.dumps(payload)
+            result = subprocess.run(
+                [ip_validator_path, payload_json],
+                capture_output=True,
+                text=True,
+                timeout=5
             )
 
-        # 5. Otherwise, continue as normal
-        response = await call_next(request)
-        return response
+            print("Go IP validator output:", repr(result.stdout))
+            if result.stdout:
+                try:
+                    validated_payload = json.loads(result.stdout)
+                    print("Go validator returned valid JSON:", validated_payload)
+                except json.JSONDecodeError:
+                    print("Go validator did not return valid JSON:", result.stdout)
+                    validated_payload = payload  # fallback to original here
+            else:
+                print("Go validator returned no output!")
+                validated_payload = payload  # fallback to original also
+
+
+            # 2. CONTENT VALIDATION (non-fatal, but log)
+            content_validator_path = self.content_validator_path
+            result = subprocess.run(
+                [content_validator_path, payload_json],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            print("Go validator output:", repr(result.stdout))
+
+            httpx.post(
+                self.api_url + "/api/schemas",
+                json=validated_payload
+            )
+
+            # 4. If IP was blocked, now raise the HTTP error COPY OF CORS BROTHA
+            if result.returncode != 0:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
+                )
+
+            # Decriment the API limit
+            self.api_limit_daily -= 1
+
+            # 5. Otherwise, continue as normal
+            response = await call_next(request)
+            return response
+
+        raise HTTPException(
+                    status_code=500,
+                    detail="API limit reached for today. Go fuck yourself."
+                )
