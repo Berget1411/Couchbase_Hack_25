@@ -27,7 +27,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ### Class and file imports
-from client import Utils
+
+
 from query import QueryDB
 
 query_obj = QueryDB() # Initialize query object for database operations
@@ -110,14 +111,14 @@ async def submit_schema(payload: Dict[str, Any]):
         except CouchbaseException as e:
             print(e)
 
-        
+        """
         # Simple K-V operation - to retrieve a document by ID
         try:
             result = cb_coll.get(key)
             print("\nFetch document success. Result: ", result.content_as[dict])
         except CouchbaseException as e:
             print(e)
-        """    
+          
         try:
             payload["name"] = "Couchbase Airways!!"
             result = cb_coll.replace(key, payload)
