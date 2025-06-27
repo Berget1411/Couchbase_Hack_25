@@ -1,3 +1,6 @@
+## Backend structure
+![alt text](image.png)
+
 ## Set up backend API:
 in api/:
 
