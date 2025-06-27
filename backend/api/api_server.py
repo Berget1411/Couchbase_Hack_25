@@ -85,7 +85,7 @@ async def submit_schema(payload: Dict[str, Any]):
     key = payload['timestamp'] + ":" + payload["api_key"] + ":" + str(payload["session_id"])
     
     print(payload)
-
+    print(cb_username, cb_password, cb_bucketname, cb_scope, cb_collection)
     auth = PasswordAuthenticator(cb_username, cb_password) # type: ignore
 
     options = ClusterOptions(auth)
@@ -134,6 +134,7 @@ async def submit_schema(payload: Dict[str, Any]):
         except CouchbaseException as e:
             print(e)
         """
+        
         
     except Exception as e:
         traceback.print_exc()
