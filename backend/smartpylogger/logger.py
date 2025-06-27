@@ -90,7 +90,6 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
 
         # Basic configuration
         self.api_key = api_key
-        self.session_id = 0
         self.api_url = API_URL
         self.allowed_origins = allowed_origins or []
         self.api_limit_daily = api_limit_daily  # Limit for API requests, default to 1000
@@ -181,7 +180,7 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
 
         # Wrap it for the /api/schemas endpoint
         payload = {"api_key":self.api_key,
-                    "session_id":self.session_id,
+                    "session_id":self.auth,
                     "app_name": self.app_name,
                     "request_method": request_method, 
                     "request_data": body_dict,
