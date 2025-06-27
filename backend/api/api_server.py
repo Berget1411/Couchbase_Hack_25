@@ -210,11 +210,13 @@ async def push_new_requests_to_frontend(request_dict: Dict[str, Any]):
     """
 
     # Request dict will contain session_id, and num_rows
+    print(f"Received request: {request_dict}")
 
     returned_list_dict = query_obj.get_requests_by_ids(
         session_id=request_dict["session_id"],
         requests_per_session=request_dict["num_rows"]
     )
+    print(f"Returning {len(returned_list_dict)} results")
     return returned_list_dict
 
 
@@ -223,6 +225,11 @@ async def push_new_requests_to_frontend(request_dict: Dict[str, Any]):
 async def health_check():
     """Health check endpoint"""
     pass
+
+@app.get("/debug/list-documents")
+async def debug_list_documents(limit: int = 10):
+    """Debug endpoint to list all documents in the database"""
+    return query_obj.debug_list_all_documents(limit)
 
 
 if __name__ == "__main__":

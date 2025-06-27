@@ -1,7 +1,9 @@
 ## Backend structure
+
 ![alt text](image.png)
 
 ## Set up backend API:
+
 in api/:
 
 pip install uv
@@ -19,11 +21,15 @@ poetry install
 (NOW U CAN RUN main.py in developer/ to input command-line prompts)
 
 ## Run:
-docker-compose up -d  # With Docker
+
+docker-compose up -d # With Docker
+
 ### Or:
-python api_server.py  # Local
+
+python api_server.py # Local
 
 TODO LIST FOR SELF:
+
 - Remove excessive files and shit in general
 - Be able to input own banned words & phrases (maybe an LLM to rewrite phrases to have a bunch of variants in preprocessing stage)
 - Test how to make AI shit cheaper!
@@ -38,8 +44,13 @@ TODO LIST FOR SELF:
 - IMPORTANT: Test with errored out requests (400-500 code errors)
 
 ASK FROM LUDWIG:
+
 - 3 options select to analyze a request (summarize/explain (who did what), fix (suggest PR), find (where something originates))
 - Able to copy LLM response in a click (icon type shit)
 - Call it Aegis
 - Make UI lowkey white and black with a secondary color (like green or magenta or somethin, ill create a cool logo)
 - Create documentation (probably AI-gen) and cool ASCI art (pls remake UI to have a bunch of ASCI art and be less Enterprisey)
+
+### Run test files
+
+python -m tests.test_catch
