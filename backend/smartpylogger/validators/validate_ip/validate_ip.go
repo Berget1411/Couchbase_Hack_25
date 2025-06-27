@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -33,7 +34,8 @@ func isIPAllowed(senderIP string, allowedOrigins []string) bool {
 func main() {
 	// Check if the JSON payload is provided as a command line argument
 	if len(os.Args) < 2 {
-		fmt.Println("ERROR: No JSON payload provided")
+		l := log.New(os.Stderr, "ERROR: No JSON payload provided", 0)
+		fmt.Println(l)
 		os.Exit(1)
 	}
 
