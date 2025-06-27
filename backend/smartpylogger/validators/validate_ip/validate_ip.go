@@ -9,7 +9,7 @@ import (
 // Defining payload struct
 type PayloadIP struct {
 	APIKey         string                 `json:"api_key"`
-	SessionID      int                    `json:"session_id"`
+	SessionID      string                 `json:"session_id"`
 	AppName        string                 `json:"app_name"`
 	RequestMethod  string                 `json:"request_method"`
 	RequestData    map[string]interface{} `json:"request_data"`
