@@ -6,12 +6,12 @@ from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
+import subprocess
 
 from datetime import timedelta
 import traceback
 from datetime import datetime
 
-import psycopg2
 import os
 from typing import Optional, List, Any, Dict
 import json
@@ -23,11 +23,12 @@ from couchbase.options import ClusterOptions
 
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 ### Class and file imports
-from client import Utils
-from infer import LLM
+
+
 from query import QueryDB
 
 query_obj = QueryDB() # Initialize query object for database operations
@@ -84,7 +85,7 @@ async def submit_schema(payload: Dict[str, Any]):
     key = payload['timestamp'] + ":" + payload["api_key"] + ":" + str(payload["session_id"])
     
     print(payload)
-
+    print(cb_username, cb_password, cb_bucketname, cb_scope, cb_collection)
     auth = PasswordAuthenticator(cb_username, cb_password) # type: ignore
 
     options = ClusterOptions(auth)
@@ -117,7 +118,7 @@ async def submit_schema(payload: Dict[str, Any]):
             print("\nFetch document success. Result: ", result.content_as[dict])
         except CouchbaseException as e:
             print(e)
-            
+          
         try:
             payload["name"] = "Couchbase Airways!!"
             result = cb_coll.replace(key, payload)
@@ -133,6 +134,7 @@ async def submit_schema(payload: Dict[str, Any]):
         except CouchbaseException as e:
             print(e)
         """
+        
         
     except Exception as e:
         traceback.print_exc()
@@ -160,27 +162,44 @@ async def validate_api_key_client(auth_dict: Dict[str, Any]):
 ### ---- DASHBOARD ENDPOINTS: Dashboard -> API ---- ###
 
 @app.post("/dashboard/send-requests")
-async def push_selected_requests_response(request: DashboardRequest):
-    """
-    Unified endpoint for dashboard requests:
-    - No request_ids + no chat_message = Return no requests
-    - With request_ids + no chat_message = Feed to LLM and revert to standard prompt to summarize what they are likely to mean  
-    - With request_ids + chat_message = Return selected requests + LLM analysis with regard to ur query
-    """
+async def push_selected_requests_response(query_dict: Dict[str, Any]):
+    repo_url = query_dict["repo_url"]
+    user_query = query_dict["user_query"]
+    input_requests = query_dict.get("input_requests", [])
+    # Call the analysis script
+    result = subprocess.run(
+        [
+            "python3", "analyze_repo.py", repo_url, user_query, *input_requests
+        ],
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    #print("STDOUT:", result.stdout)
+    #print("STDERR:", result.stderr)
+    
+    # Parse the JSON response
+    raw_output = result.stdout.strip()
 
-    llm = LLM()
-    query_db = QueryDB()
-
-    queried_requests: list[dict[str, Any]] = []
-
-    ### LLM LOGIC GOES HERE
-
-    context_str = json.dumps(queried_requests)
-
-    if request.chat_message is not None:
-        llm.get_response(query=request.chat_message, context=context_str)
+    # Remove everything before the first '{'
+    json_start = raw_output.find('{')
+    if json_start != -1:
+        json_str = raw_output[json_start:]
     else:
-        llm.get_response(query="The user did not ask for anything particular. Summarize the requests below: ", context=context_str)
+        json_str = raw_output
+
+    try:
+        parsed_result = json.loads(json_str)
+        print("Parsed JSON:", parsed_result)
+        return parsed_result
+    except json.JSONDecodeError as e:
+        return {
+            "error": "Failed to parse JSON response",
+            "raw_output": raw_output,
+            "question_rephrase": f"Error analyzing: {user_query}",
+            "Code snippet": "No code snippet available due to parsing error",
+            "proposed_fix": "Unable to provide fix due to response parsing error"
+        }
 
 
 @app.post("/dashboard/push-new-requests")
