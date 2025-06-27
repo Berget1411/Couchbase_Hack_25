@@ -18,6 +18,19 @@ RUN pip install --no-cache-dir -r requirements.prod.txt
 # Copy the API code
 COPY . .
 
+# Install Poetry
+RUN pip install poetry
+
+# Install smol-dev dependencies using Poetry
+WORKDIR /app/developer
+
+RUN poetry lock
+
+RUN poetry install --no-root
+
+# Go back to API working directory
+WORKDIR /app
+
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
