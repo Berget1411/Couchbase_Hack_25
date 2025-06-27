@@ -166,7 +166,7 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
     
 
     ### ---- MAIN ASYNC DISPATCH METHOD ---- ###
-async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response: # type: ignore
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response: # type: ignore
         """Intercept request/response, sensor for bad words quickly and send off to api_server.py"""
         # Read the request body & load to JSON to send off to API
         body = await request.body()
