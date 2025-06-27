@@ -28,6 +28,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useGetAppSessionsByUserId } from "@/hooks/api/dashboard/use-app-session";
 
 const data = {
   user: {
@@ -129,16 +130,19 @@ const data = {
   ],
   apps: [
     {
+      id: "graphrag",
       name: "GraphRag",
       url: "/dashboard/app/graphrag",
       icon: IconFolder,
     },
     {
+      id: "ai-todo-app",
       name: "AI Todo App",
       url: "/dashboard/app/ai-todo-app",
       icon: IconFolder,
     },
     {
+      id: "ai-email-assistant-app",
       name: "Ai Email Assistant App",
       url: "/dashboard/app/ai-email-assistant-app",
       icon: IconFolder,
@@ -147,6 +151,8 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: appSessions } = useGetAppSessionsByUserId();
+
   return (
     <Sidebar collapsible='offcanvas' {...props}>
       <SidebarHeader>
@@ -166,7 +172,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavApps items={data.apps} />
+        <NavApps
+          items={
+            appSessions?.map((appSession) => ({
+              id: appSession.id,
+              name: appSession.name || "New App Session",
+              url: `/dashboard/app/${appSession.id}`,
+              icon: IconFolder,
+            })) || []
+          }
+        />
         <NavSecondary items={data.navSecondary} className='mt-auto' />
       </SidebarContent>
       <SidebarFooter>

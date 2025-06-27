@@ -1,7 +1,16 @@
 import { prisma } from "@/lib/prisma";
 
-export const getAppSession = async (userId: string) => {
+export const getAppSession = async (appSessionId: string) => {
   return prisma.appSession.findFirst({
+    where: { id: appSessionId },
+    include: {
+      githubRepo: true,
+    },
+  });
+};
+
+export const getAppSessionsByUserId = async (userId: string) => {
+  return prisma.appSession.findMany({
     where: { userId: userId },
     include: {
       githubRepo: true,
@@ -21,11 +30,17 @@ export const createAppSession = async (
   });
 };
 
-export const updateAppSession = async (appId: string) => {
+export const updateAppSession = async (
+  appId: string,
+  githubRepoId?: string
+) => {
   return prisma.appSession.update({
     where: { id: appId },
     data: {
-      githubRepoId: appId,
+      githubRepoId: githubRepoId,
+    },
+    include: {
+      githubRepo: true,
     },
   });
 };

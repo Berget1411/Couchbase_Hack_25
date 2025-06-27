@@ -29,6 +29,7 @@ export function NavApps({
   items,
 }: {
   items: {
+    id: string;
     name: string;
     url: string;
     icon: Icon;
@@ -41,7 +42,7 @@ export function NavApps({
       <SidebarGroupLabel>Apps</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
-          <SidebarMenuItem key={item.name}>
+          <SidebarMenuItem key={item.id}>
             <SidebarMenuButton asChild>
               <a href={item.url}>
                 <item.icon />

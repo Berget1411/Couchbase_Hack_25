@@ -1,12 +1,16 @@
 from smartpylogger import LoggingMiddleware
 from fastapi import FastAPI, Request
 import requests
+import os
+import dotenv
+
+dotenv.load_dotenv()
 
 app = FastAPI()
 
 app.add_middleware(
     LoggingMiddleware,
-    api_key="4806ae52-5ba5-401f-9622-6f3a31483287",  # This is where the middleware would forward, but the app itself runs on 8500
+    api_key=os.getenv("API_KEY"),  # This is where the middleware would forward, but the app itself runs on 8500
     allowed_origins=["127.0.0.1"],
 )
 

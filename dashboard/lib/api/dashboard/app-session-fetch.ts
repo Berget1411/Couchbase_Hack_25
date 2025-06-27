@@ -1,30 +1,43 @@
 import { baseDashboardFetch } from "../base-dashboard-fetch";
 import { AppSession } from "@prisma/client";
 
-export const getAppSession = async (appId: string) => {
-  return baseDashboardFetch<AppSession>(`app-session/${appId}`);
+export interface AppSessionWithRepo extends AppSession {
+  githubRepo?: {
+    id: string;
+    name: string;
+    url: string;
+    createdAt: Date;
+    updatedAt: Date;
+  } | null;
+}
+
+export const getAppSession = async (appSessionId: string) => {
+  return baseDashboardFetch<AppSessionWithRepo>(`app-session/${appSessionId}`);
 };
 
-export const getAppSessionByUserId = async (userId: string) => {
-  return baseDashboardFetch<AppSession>(`app-session/user/${userId}`);
+export const getAppSessionByUserId = async () => {
+  return baseDashboardFetch<AppSession[]>(`app-session`);
 };
 
-export const createAppSession = async (appId: string) => {
+export const createAppSession = async (appSessionName?: string) => {
   return baseDashboardFetch<AppSession>(`app-session`, {
     method: "POST",
-    body: JSON.stringify({ appId }),
+    body: JSON.stringify({ appSessionName }),
   });
 };
 
-export const updateAppSession = async (appId: string) => {
-  return baseDashboardFetch<AppSession>(`app-session/${appId}`, {
+export const updateAppSession = async (
+  appSessionId: string,
+  githubRepoId?: string
+) => {
+  return baseDashboardFetch<AppSessionWithRepo>(`app-session/${appSessionId}`, {
     method: "PUT",
-    body: JSON.stringify({ appId }),
+    body: JSON.stringify({ githubRepoId }),
   });
 };
 
-export const deleteAppSession = async (appId: string) => {
-  return baseDashboardFetch<AppSession>(`app-session/${appId}`, {
+export const deleteAppSession = async (appSessionId: string) => {
+  return baseDashboardFetch<AppSession>(`app-session/${appSessionId}`, {
     method: "DELETE",
   });
 };

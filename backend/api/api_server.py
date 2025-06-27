@@ -37,7 +37,7 @@ app = FastAPI(title="SmartPyLogger API", version="1.0.0")
 # CORS for dashboard connection
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://dashboard:3000", ""],
+    allow_origins=["http://localhost:3000", "http://dashboard:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -190,7 +190,7 @@ async def push_new_requests_to_frontend(request_dict: Dict[str, Any]):
     Called when new requests arrive from SmartPyLogger clients.
     """
 
-    # Request dict will contain app_id, and num of requested rows
+    # Request dict will contain session_id, and num_rows
 
     returned_list_dict = query_obj.get_requests_by_ids(
         session_id=request_dict["session_id"],

@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { GitHubService } from "@/lib/api/github-service";
+import { prisma } from "@/lib/prisma";
 
+// Get user's GitHub repositories
 export async function GET(request: NextRequest) {
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    const session = await auth.api.getSession({ headers: request.headers });
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Get user's GitHub account with access token
+    // Get user's GitHub access token from the account
     const account = await prisma.account.findFirst({
       where: {
         userId: session.user.id,
@@ -26,52 +26,59 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if token is still valid
     const githubService = new GitHubService(account.accessToken);
-    const isTokenValid = await githubService.checkTokenValidity();
+    const repos = await githubService.getUserRepositories();
 
-    if (!isTokenValid) {
+    // Filter only public repositories
+    const publicRepos = repos.filter((repo) => !repo.private);
+
+    return NextResponse.json(publicRepos);
+  } catch (error) {
+    console.error("Error fetching GitHub repositories:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch repositories" },
+      { status: 500 }
+    );
+  }
+}
+
+// Create or connect a GitHub repository
+export async function POST(request: NextRequest) {
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { name, url } = await request.json();
+
+    if (!name || !url) {
       return NextResponse.json(
-        { error: "GitHub token expired" },
-        { status: 401 }
+        { error: "Name and URL are required" },
+        { status: 400 }
       );
     }
 
-    // Fetch repositories from GitHub API
-    const githubRepos = await githubService.getUserRepositories();
-
-    // Get user's connected repositories from database
-    const connectedRepos = await prisma.appGithubRepo.findMany({
-      where: { userId: session.user.id },
+    // Check if repo already exists
+    let githubRepo = await prisma.appGithubRepo.findFirst({
+      where: { url },
     });
 
-    const connectedRepoNames = new Set(
-      connectedRepos.map((repo) => repo.fullName)
-    );
+    // Create new repo if it doesn't exist
+    if (!githubRepo) {
+      githubRepo = await prisma.appGithubRepo.create({
+        data: {
+          name,
+          url,
+        },
+      });
+    }
 
-    // Combine GitHub data with connection status
-    const reposWithStatus = githubRepos.map((repo) => ({
-      id: repo.id,
-      name: repo.name,
-      full_name: repo.full_name,
-      description: repo.description,
-      html_url: repo.html_url,
-      stargazers_count: repo.stargazers_count,
-      forks_count: repo.forks_count,
-      open_issues_count: repo.open_issues_count,
-      private: repo.private,
-      owner: repo.owner,
-      isConnected: connectedRepoNames.has(repo.full_name),
-    }));
-
-    return NextResponse.json(reposWithStatus);
+    return NextResponse.json(githubRepo);
   } catch (error) {
-    console.error("Error fetching repositories:", error);
+    console.error("Error creating/connecting GitHub repository:", error);
     return NextResponse.json(
-      {
-        error: "Internal server error",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
+      { error: "Failed to create/connect repository" },
       { status: 500 }
     );
   }
