@@ -7,6 +7,7 @@ import dotenv
 dotenv.load_dotenv()
 
 app = FastAPI()
+print(os.getenv("API_KEY"))
 
 app.add_middleware(
     LoggingMiddleware,
