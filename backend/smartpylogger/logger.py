@@ -164,17 +164,6 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             print("Go validator returned no output!")
             validated_payload = payload  # fallback to original also
 
-        # 4. If IP was blocked, now raise the HTTP error COPY OF CORS BROTHA
-        if result.returncode != 0:
-            raise HTTPException(
-                status_code=403,
-                detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
-            )
-
-        httpx.post(
-            self.api_url + "/api/schemas",
-            json=validated_payload
-        )
 
         # 2. CONTENT VALIDATION (non-fatal, but log)
         content_validator_path = self.content_validator_path
@@ -186,6 +175,17 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         )
         print("Go validator output:", repr(result.stdout))
 
+        httpx.post(
+            self.api_url + "/api/schemas",
+            json=validated_payload
+        )
+
+        # 4. If IP was blocked, now raise the HTTP error COPY OF CORS BROTHA
+        if result.returncode != 0:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
+            )
 
         # 5. Otherwise, continue as normal
         response = await call_next(request)
