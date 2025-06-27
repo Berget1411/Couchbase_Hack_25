@@ -28,7 +28,7 @@ class QueryDB():
         self.scope = os.getenv("SCOPE_NAME")
         self.collect = os.getenv("COLLECTION_NAME")
 
-    def get_requests_by_ids(self, session_id: int, requests_per_session: int) -> list[dict]:
+    def get_requests_by_ids(self, session_id: str, requests_per_session: int) -> list[dict]:
 
         cluster = Cluster.connect(
             self.endpoint,
