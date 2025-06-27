@@ -1,3 +1,9 @@
+# SmartPyLogger Client Server!!!
+
+### This is what manages our users requests and the inference for analysis of requests and github codebases!
+
+### SHOUTOUT TO SMOL-DEV FOR PROVIDING US WITH A CODE GENERATION AND ANALYSIS AGENT! 
+
 ## Backend structure
 
 ![alt text](image.png)
