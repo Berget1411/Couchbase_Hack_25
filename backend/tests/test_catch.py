@@ -7,12 +7,14 @@ import dotenv
 dotenv.load_dotenv()
 
 app = FastAPI()
+print(os.getenv("API_KEY"))
 
 app.add_middleware(
     LoggingMiddleware,
     api_key=os.getenv("API_KEY"),  # This is where the middleware would forward, but the app itself runs on 8500
     allowed_origins=["127.0.0.1"],
-    api_limit_daily=1000
+    api_limit_daily=1000,
+    banned_words_path="tests/my_banned_words.txt"
 )
 
 API_URL = "http://localhost:8500"

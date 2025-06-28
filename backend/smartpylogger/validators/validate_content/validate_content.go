@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -53,7 +52,7 @@ func loadBannedWords(filename string) ([]string, error) {
 
 // Function to check if the content contains any banned words
 func contains(content string, bannedWords []string) bool {
-	fmt.Println("DEBUG: content =", content)
+	os.Stderr.WriteString("DEBUG: content =" + content)
 	fmt.Println("DEBUG: bannedWords =", bannedWords)
 	contentLower := strings.ToLower(content)
 
@@ -73,14 +72,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Read the JSON payload from command line argument
 	payloadJSON := os.Args[1]
-	fmt.Println("DEBUG: payloadJSON =", payloadJSON)
 
-	// Load banned words from file
-	exePath, _ := os.Executable()
-	exeDir := filepath.Dir(exePath)
-	bannedWordsPath := filepath.Join(exeDir, "bad_words")
+	// Default path
+	bannedWordsPath := "bad_words.txt"
+	// If a second argument is provided, use it as the banned words file
+	if len(os.Args) >= 3 {
+		bannedWordsPath = os.Args[2]
+	}
+
 	bannedWords, err := loadBannedWords(bannedWordsPath)
 	if err != nil {
 		fmt.Printf("ERROR: Failed to load banned words: %v\n", err)
@@ -97,7 +97,8 @@ func main() {
 
 	// Validation 1: Check if request_data contains banned words
 	requestDataStr := fmt.Sprintf("%v", payload.RequestData)
-	fmt.Println("DEBUG: request_data =", requestDataStr)
+	// fmt.Println("DEBUG: request_data =", requestDataStr)
+	os.Stderr.WriteString("DEBUG: request_data = " + requestDataStr + "\n")
 	hasBannedWords := contains(requestDataStr, bannedWords)
 
 	if hasBannedWords {
