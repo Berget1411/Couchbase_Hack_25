@@ -41,6 +41,11 @@
 ....................................................................................
 ```
 
+Thank you so much for downloading and using SmartPyLogger!
+Developed by Niklavs Visockis, Ludvig Bergström and Jonas Lorenz -
+in June of 2025 at the Couchbase x AWS x Cillers Hackathon.
+Special thanks goes out to the Couchbase team and AWS for sponsoring this project.
+
 ### FastAPI middleware for comprehensive request/response logging.
 
 ## Installation
