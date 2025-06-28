@@ -15,7 +15,7 @@ But we needed one more. Two backend-heavy devs won’t cut it. I had met Ludvig 
 
 ## ▒▒▒ I D E A ▒▒▒
 People keep saying it: “Use-case over tech.”
-Fine. But I love tech. So let’s build something for devs, not just another SaaS.
+Fine. But we love tech. So let’s build something for devs, not just another SaaS.
 
 We wanted this tool to be ridiculously simple. Minimal UI, no fluff, and real value for Python web devs.
 
