@@ -2,7 +2,11 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Spotlight } from "./spotlight";
 
-export function HeroBackground() {
+export function HeroBackground({
+  showSpotlight = true,
+}: {
+  showSpotlight?: boolean;
+}) {
   return (
     <div className='absolute inset-0 flex w-full overflow-hidden bg-background antialiased'>
       {/* Subtle grid background */}
@@ -28,10 +32,12 @@ export function HeroBackground() {
         }}
       />
 
-      <Spotlight
-        className='-top-40 left-0 md:-top-20 md:left-60'
-        fill='currentColor'
-      />
+      {showSpotlight && (
+        <Spotlight
+          className='-top-40 left-0 md:-top-20 md:left-60'
+          fill='currentColor'
+        />
+      )}
     </div>
   );
 }

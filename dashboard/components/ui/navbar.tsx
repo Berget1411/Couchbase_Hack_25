@@ -48,9 +48,9 @@ export function Navbar() {
           </Link>
           <Link
             className='transition-colors hover:text-foreground/80 text-foreground/60'
-            href='/blogs'
+            href='/about-us'
           >
-            blogs
+            about
           </Link>
           <Link
             className='transition-colors hover:text-foreground/80 text-foreground/60'
@@ -144,10 +144,10 @@ export function Navbar() {
                   </Link>
                   <Link
                     className='text-lg font-medium transition-colors hover:text-foreground/80 text-foreground/60'
-                    href='/blogs'
+                    href='/about-us'
                     onClick={() => setIsOpen(false)}
                   >
-                    blogs
+                    About Us
                   </Link>
                   <Link
                     className='text-lg font-medium transition-colors hover:text-foreground/80 text-foreground/60'
