@@ -201,6 +201,11 @@ async def push_selected_requests_response(query_dict: Dict[str, Any]):
             "proposed_fix": "Unable to provide fix due to response parsing error"
         }
 
+@app.post("/dashboard/git-inference")
+async def git_inference(query_dict: Dict[str, Any]):
+    """Take output of smol-dev, ingest github repo and relevant files and generate a PR for a proposed fix on that repo."""
+    pass
+
 
 @app.post("/dashboard/push-new-requests")
 async def push_new_requests_to_frontend(request_dict: Dict[str, Any]):
