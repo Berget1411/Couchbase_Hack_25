@@ -13,10 +13,12 @@ import {
   DrawerClose,
 } from "./drawer";
 import { useTheme } from "next-themes";
-
+import { authClient } from "@/lib/auth-client";
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+
+  const { data: session, isPending } = authClient.useSession();
 
   return (
     <header className='sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
@@ -92,9 +94,17 @@ export function Navbar() {
             className='hidden md:inline-flex'
             asChild
           >
-            <Link href='/login'>
-              <span className='text-white'>Sign In</span>
-            </Link>
+            {isPending ? (
+              <span className='text-white'>Loading...</span>
+            ) : session ? (
+              <Link href='/dashboard'>
+                <span className='text-white'>Dashboard</span>
+              </Link>
+            ) : (
+              <Link href='/login'>
+                <span className='text-white'>Sign In</span>
+              </Link>
+            )}
           </Button>
 
           {/* Mobile Menu Drawer */}
@@ -153,9 +163,17 @@ export function Navbar() {
                       onClick={() => setIsOpen(false)}
                       asChild
                     >
-                      <Link href='/login'>
-                        <span className='text-white'>Sign In</span>
-                      </Link>
+                      {isPending ? (
+                        <span className='text-white'>Loading...</span>
+                      ) : session ? (
+                        <Link href='/dashboard'>
+                          <span className='text-white'>Dashboard</span>
+                        </Link>
+                      ) : (
+                        <Link href='/login'>
+                          <span className='text-white'>Sign In</span>
+                        </Link>
+                      )}
                     </Button>
                   </div>
                 </nav>
