@@ -8,11 +8,12 @@ import { motion } from "framer-motion";
 
 export function AboutHeader() {
   return (
-    <div className='flex flex-col justify-center items-center px-6 py-16 '>
+    <div className='flex flex-col justify-center items-center px-6 py-16 h-full '>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
+        className='w-full max-w-md'
       >
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -26,7 +27,7 @@ export function AboutHeader() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className='text-gray-400 '
+          className='text-gray-400'
         >
           Built in under two weeks during the Couchbase x AWS x Cillers
           hackathon
@@ -43,7 +44,7 @@ export function AboutHeader() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className='flex gap-6 mb-12'
+          className='flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center'
         >
           <motion.div
             initial={{ opacity: 0, x: -20 }}

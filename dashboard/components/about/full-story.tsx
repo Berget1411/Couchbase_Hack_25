@@ -1,16 +1,40 @@
 "use client";
 
 import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { StorySection } from "./story-section";
+import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface FullStoryProps {
   onBack: () => void;
 }
 
 export function FullStory({ onBack }: FullStoryProps) {
+  const [content, setContent] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch("/api/story");
+        if (!response.ok) {
+          throw new Error("Failed to fetch story content");
+        }
+        const data = await response.json();
+        setContent(data.content);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
+
   return (
     <motion.div
       key='fullstory'
@@ -20,119 +44,71 @@ export function FullStory({ onBack }: FullStoryProps) {
       transition={{ duration: 0.4 }}
       className='h-full overflow-y-auto'
     >
-      <div className='text-sm text-gray-400 mb-4 flex items-center gap-2'>
-        <Button
-          variant='ghost'
-          size='sm'
-          onClick={onBack}
-          className='p-1 h-auto text-gray-400 hover:text-white'
-        >
-          <ArrowLeft className='w-4 h-4' />
-        </Button>
-        Stockholm Hackathon // July 1st, 2025
-      </div>
+      <div className='max-w-4xl mx-auto'>
+        <div className='text-sm text-gray-400 mb-4 flex items-center gap-2'>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={onBack}
+            className='p-1 h-auto text-gray-400 hover:text-white'
+          >
+            <ArrowLeft className='w-4 h-4' />
+          </Button>
+          Stockholm Hackathon // July 1st, 2025
+        </div>
 
-      <h2 className='text-2xl font-bold mb-6'>The Complete Story</h2>
-
-      <div className='space-y-6 text-sm'>
-        <StorySection title='PRELUDE'>
-          <p className='text-gray-400 leading-relaxed mb-4'>
-            SmartPyLogger was built in just under two weeks of focused execution
-            during the June–July 2025 AWS x Couchbase x Cillers hackathon.
-          </p>
-          <p className='text-gray-400 leading-relaxed mb-4'>
-            Before we signed up, I (Niklavs Visockis) and Jonas Lorenz — my
-            friend, backend/ML dev, and teammate from the KTH AI Society (AIS) —
-            had just wrapped an internal demo for Twiga AI. We&apos;d
-            implemented graphRAG using Neo4j, then spent hours talking. Goals,
-            build philosophies, future paths. I told him about my previous
-            hackathons. What worked, what didn&apos;t. What I&apos;d do
-            differently. I asked if he&apos;d join the next one.
-          </p>
-          <p className='text-gray-400 leading-relaxed mb-4'>
-            A few days later, Couchbase hit my inbox. I shot him a message:
-            &quot;JOIN QUICK APPLY APPLY NOWWWWW&quot;.
-          </p>
-          <p className='text-gray-400 leading-relaxed'>
-            But we needed one more. Two backend-heavy devs won&apos;t cut it. I
-            had met Ludvig Bergström when he reached out to me about a KTH
-            Innovation event a few days prior, and it turned out that he was a
-            JS dev. He showed me his personal website and I was blown away by
-            the design and smoothness. With that, our team got a 3rd member.
-          </p>
-        </StorySection>
-
-        <Separator className='my-6' />
-
-        <StorySection title='IDEA'>
-          <p className='text-gray-400 leading-relaxed mb-4'>
-            People keep saying it: &quot;Use-case over tech.&quot; Fine. But we
-            love tech. So let&apos;s build something for devs, not just another
-            SaaS.
-          </p>
-          <p className='text-gray-400 leading-relaxed mb-4'>
-            We wanted this tool to be ridiculously simple. Minimal UI, no fluff,
-            and real value for Python web devs.
-          </p>
-
-          <div className='mb-4'>
-            <p className='text-gray-300 font-medium mb-2'>The core concept:</p>
-            <ul className='text-gray-400 space-y-1 ml-4'>
-              <li>• FastAPI request logging with full history</li>
-              <li>
-                • AI-backed analysis of requests and source (not just AI for the
-                sake of it)
-              </li>
-              <li>
-                • CORS middleware functionality with IP blocking but logging of
-                disallowed IP addresses as well
-              </li>
-              <li>
-                • Censorship and flagging of requests based on keywords or
-                patterns
-              </li>
-            </ul>
+        {loading && (
+          <div className='text-center py-8'>
+            <div className='text-gray-400'>Loading story...</div>
           </div>
+        )}
 
-          <div>
-            <p className='text-gray-300 font-medium mb-2'>The plan:</p>
-            <ul className='text-gray-400 space-y-1 ml-4 mb-4'>
-              <li>
-                • Build a pip-installable package anyone can use instantly
-              </li>
-              <li>
-                • Custom backend for flagging, filtering, and blocking dangerous
-                traffic
-              </li>
-              <li>• Clean, intuitive UI, scope comes second to user flow</li>
-              <li>
-                • Auth, payments, DB, logging, full product spine, no
-                placeholders
-              </li>
-            </ul>
-            <p className='text-gray-400 leading-relaxed mb-4'>
-              We treated it like a microstartup. No pre-seed, no pre-launch, no
-              staged rollout. It exists. It works. If someone wants to run it,
-              they can. If not, that&apos;s fine too.
-            </p>
-            <p className='text-gray-400 leading-relaxed'>
-              No sales funnel. No landing page. No company. Just working code
-              you can fork and deploy.
-            </p>
+        {error && (
+          <div className='text-center py-8'>
+            <div className='text-red-400'>Error: {error}</div>
           </div>
-        </StorySection>
+        )}
 
-        <Separator className='my-6' />
-
-        <StorySection title='FINISH'>
-          <p className='text-gray-400 leading-relaxed mb-4'>
-            We shipped fast. Learned Go and TypeScript along the way. Debated
-            architecture choices deep into the night.
-          </p>
-          <p className='text-gray-400 leading-relaxed'>
-            It&apos;s not perfect. But it works, and it&apos;s ours!
-          </p>
-        </StorySection>
+        {!loading && !error && (
+          <div className='prose prose-invert prose-lg max-w-none'>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h1: ({ children }) => (
+                  <h1 className='text-3xl font-bold mb-8 text-white'>
+                    {children}
+                  </h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 className='text-xl font-semibold mb-6 mt-8 text-gray-200'>
+                    {children}
+                  </h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 className='text-lg font-semibold mb-3 text-gray-300'>
+                    {children}
+                  </h3>
+                ),
+                p: ({ children }) => (
+                  <p className='text-gray-400 leading-relaxed mb-6'>
+                    {children}
+                  </p>
+                ),
+                ul: ({ children }) => (
+                  <ul className='text-gray-400 space-y-2 ml-6 mb-6 leading-relaxed list-disc'>
+                    {children}
+                  </ul>
+                ),
+                li: ({ children }) => (
+                  <li className='text-gray-400'>{children}</li>
+                ),
+                hr: () => <hr className='border-gray-700 my-8' />,
+              }}
+            >
+              {content}
+            </ReactMarkdown>
+          </div>
+        )}
       </div>
     </motion.div>
   );
