@@ -9,12 +9,16 @@ dotenv.load_dotenv()
 app = FastAPI()
 print(os.getenv("API_KEY"))
 
+# Get the absolute path to the banned words file
+current_dir = os.path.dirname(os.path.abspath(__file__))
+banned_words_path = os.path.join(current_dir, "my_banned_words.txt")
+
 app.add_middleware(
     LoggingMiddleware,
     api_key=os.getenv("API_KEY"),  # This is where the middleware would forward, but the app itself runs on 8500
     allowed_origins=["127.0.0.1"],
     api_limit_daily=1000,
-    banned_words_path="tests/my_banned_words.txt"
+    banned_words_path=banned_words_path
 )
 
 API_URL = "http://localhost:8500"
