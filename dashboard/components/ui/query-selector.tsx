@@ -94,9 +94,6 @@ export function QuerySelector({
             placeholder='Enter your custom query...'
             className='w-full'
           />
-          <div className='text-xs text-muted-foreground'>
-            ✏️ Using custom query
-          </div>
         </div>
       ) : (
         <div className='space-y-2'>
@@ -110,17 +107,8 @@ export function QuerySelector({
                   {query}
                 </SelectItem>
               ))}
-              <SelectItem value='custom' className='text-sm font-medium'>
-                ✏️ Write custom query...
-              </SelectItem>
             </SelectContent>
           </Select>
-
-          {value && isPredefinedQuery(value) && (
-            <div className='text-xs text-muted-foreground'>
-              📋 Using predefined query
-            </div>
-          )}
         </div>
       )}
     </div>

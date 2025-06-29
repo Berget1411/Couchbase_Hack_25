@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import {
-  useGitHubRepos,
-  useConnectRepo,
-  useDisconnectRepo,
+  useGitHubRepositories,
+  useCreateGitHubRepo,
 } from "@/hooks/api/use-github-repos";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,33 +18,50 @@ import {
   FaLock,
   FaSearch,
   FaSync,
+  FaPlus,
 } from "react-icons/fa";
+import { GitHubRepo } from "@/lib/api/github-service";
 
 export function RepoManager() {
-  const { data: repos, isLoading, error, refetch } = useGitHubRepos();
-  const connectMutation = useConnectRepo();
-  const disconnectMutation = useDisconnectRepo();
+  const { data: repos, isLoading, error, refetch } = useGitHubRepositories();
+  const createMutation = useCreateGitHubRepo();
   const [searchTerm, setSearchTerm] = useState("");
-  const [showConnectedOnly, setShowConnectedOnly] = useState(false);
+  const [customRepoUrl, setCustomRepoUrl] = useState("");
+  const [showAddRepo, setShowAddRepo] = useState(false);
 
-  const handleConnect = (repoFullName: string) => {
-    connectMutation.mutate({ repoFullName });
-  };
+  const handleAddCustomRepo = async () => {
+    if (!customRepoUrl.trim()) return;
 
-  const handleDisconnect = (repoFullName: string) => {
-    disconnectMutation.mutate({ repoFullName });
+    try {
+      // Extract repo name from URL (e.g., "owner/repo" from GitHub URL)
+      const match = customRepoUrl.match(/github\.com\/([^\/]+\/[^\/]+)/);
+      if (!match) {
+        alert("Please enter a valid GitHub repository URL");
+        return;
+      }
+      const repoName = match[1];
+
+      await createMutation.mutateAsync({
+        name: repoName,
+        url: customRepoUrl,
+      });
+
+      setCustomRepoUrl("");
+      setShowAddRepo(false);
+    } catch (error) {
+      console.error("Failed to add repository:", error);
+      alert("Failed to add repository. Please try again.");
+    }
   };
 
   const filteredRepos =
-    repos?.filter((repo) => {
+    repos?.filter((repo: GitHubRepo) => {
       const matchesSearch =
         repo.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         repo.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFilter = showConnectedOnly ? repo.isConnected : true;
-      return matchesSearch && matchesFilter;
+      return matchesSearch;
     }) || [];
 
-  const connectedCount = repos?.filter((repo) => repo.isConnected).length || 0;
   const totalCount = repos?.length || 0;
 
   if (isLoading) {
@@ -108,21 +124,65 @@ export function RepoManager() {
           <div>
             <h2 className='text-xl font-semibold'>GitHub Repositories</h2>
             <p className='text-sm text-muted-foreground'>
-              {connectedCount} of {totalCount} repositories connected
+              {totalCount} repositories available
             </p>
           </div>
         </div>
 
-        <Button
-          onClick={() => refetch()}
-          variant='outline'
-          size='sm'
-          disabled={isLoading}
-        >
-          <FaSync className='mr-2 h-4 w-4' />
-          Refresh
-        </Button>
+        <div className='flex gap-2'>
+          <Button
+            onClick={() => setShowAddRepo(!showAddRepo)}
+            variant='outline'
+            size='sm'
+          >
+            <FaPlus className='mr-2 h-4 w-4' />
+            Add Repository
+          </Button>
+          <Button
+            onClick={() => refetch()}
+            variant='outline'
+            size='sm'
+            disabled={isLoading}
+          >
+            <FaSync className='mr-2 h-4 w-4' />
+            Refresh
+          </Button>
+        </div>
       </div>
+
+      {/* Add custom repository */}
+      {showAddRepo && (
+        <Card>
+          <CardContent className='p-4'>
+            <div className='space-y-3'>
+              <h3 className='font-medium'>Add Custom Repository</h3>
+              <div className='flex gap-2'>
+                <Input
+                  placeholder='https://github.com/owner/repo'
+                  value={customRepoUrl}
+                  onChange={(e) => setCustomRepoUrl(e.target.value)}
+                  className='flex-1'
+                />
+                <Button
+                  onClick={handleAddCustomRepo}
+                  disabled={!customRepoUrl.trim() || createMutation.isPending}
+                >
+                  {createMutation.isPending ? "Adding..." : "Add"}
+                </Button>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    setShowAddRepo(false);
+                    setCustomRepoUrl("");
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <div className='flex flex-col sm:flex-row gap-4'>
@@ -135,16 +195,6 @@ export function RepoManager() {
             className='pl-10'
           />
         </div>
-
-        <div className='flex gap-2'>
-          <Button
-            variant={showConnectedOnly ? "default" : "outline"}
-            size='sm'
-            onClick={() => setShowConnectedOnly(!showConnectedOnly)}
-          >
-            {showConnectedOnly ? "Show All" : "Connected Only"}
-          </Button>
-        </div>
       </div>
 
       {/* Repository list */}
@@ -156,22 +206,20 @@ export function RepoManager() {
               size={48}
             />
             <h3 className='text-lg font-semibold mb-2'>
-              {searchTerm || showConnectedOnly
+              {searchTerm
                 ? "No repositories found"
                 : "No repositories available"}
             </h3>
             <p className='text-sm text-muted-foreground'>
               {searchTerm
                 ? "Try adjusting your search terms"
-                : showConnectedOnly
-                ? "Connect some repositories to see them here"
-                : "Make sure you have repositories in your GitHub account"}
+                : "Connect your GitHub account or add repositories to see them here"}
             </p>
           </CardContent>
         </Card>
       ) : (
         <div className='grid gap-4'>
-          {filteredRepos.map((repo) => (
+          {filteredRepos.map((repo: GitHubRepo) => (
             <Card key={repo.id} className='transition-shadow hover:shadow-md'>
               <CardHeader className='pb-3'>
                 <div className='flex items-start justify-between'>
@@ -199,9 +247,7 @@ export function RepoManager() {
                   </div>
 
                   <div className='flex items-center gap-2 ml-4'>
-                    <Badge variant={repo.isConnected ? "default" : "outline"}>
-                      {repo.isConnected ? "Connected" : "Available"}
-                    </Badge>
+                    <Badge variant='default'>Available</Badge>
                   </div>
                 </div>
               </CardHeader>
@@ -210,38 +256,19 @@ export function RepoManager() {
                 <div className='flex items-center gap-4 text-sm text-muted-foreground mb-4'>
                   <span className='flex items-center gap-1'>
                     <FaStar className='w-3 h-3' />
-                    {repo.stargazers_count.toLocaleString()}
+                    {repo.stargazers_count?.toLocaleString() || "0"}
                   </span>
                   <span className='flex items-center gap-1'>
                     <FaCodeBranch className='w-3 h-3' />
-                    {repo.forks_count.toLocaleString()}
+                    {repo.forks_count?.toLocaleString() || "0"}
                   </span>
-                  {repo.open_issues_count > 0 && (
+                  {repo.open_issues_count && repo.open_issues_count > 0 && (
                     <span className='flex items-center gap-1'>
                       <FaExclamationCircle className='w-3 h-3' />
                       {repo.open_issues_count.toLocaleString()}
                     </span>
                   )}
                 </div>
-
-                <Button
-                  size='sm'
-                  variant={repo.isConnected ? "destructive" : "default"}
-                  onClick={() =>
-                    repo.isConnected
-                      ? handleDisconnect(repo.full_name)
-                      : handleConnect(repo.full_name)
-                  }
-                  disabled={
-                    connectMutation.isPending || disconnectMutation.isPending
-                  }
-                >
-                  {connectMutation.isPending || disconnectMutation.isPending
-                    ? "Processing..."
-                    : repo.isConnected
-                    ? "Disconnect"
-                    : "Connect"}
-                </Button>
               </CardContent>
             </Card>
           ))}

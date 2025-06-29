@@ -79,14 +79,34 @@ export function RepoSelector({ appSessionId, currentRepo }: RepoSelectorProps) {
     if (!repoId || repoId === "none") {
       // Disconnect repository
       try {
-        await updateAppSession.mutateAsync({
+        console.log("Disconnecting repository for app session:", appSessionId);
+
+        const result = await updateAppSession.mutateAsync({
           appSessionId,
           githubRepoId: undefined,
         });
-        console.log("Repository disconnected successfully");
+
+        console.log("Repository disconnected successfully:", result);
         setIsOpen(false);
       } catch (error) {
         console.error("Failed to disconnect repository:", error);
+
+        let errorMessage = "Failed to disconnect repository. ";
+        if (error instanceof Error) {
+          if (error.message.includes("Unauthorized")) {
+            errorMessage += "You are not authorized to perform this action.";
+          } else if (error.message.includes("404")) {
+            errorMessage += "App session not found.";
+          } else if (error.message.includes("500")) {
+            errorMessage += "Server error occurred. Please try again later.";
+          } else {
+            errorMessage += error.message;
+          }
+        } else {
+          errorMessage += "Please try again.";
+        }
+
+        alert(errorMessage);
       } finally {
         setIsConnecting(false);
       }
@@ -137,14 +157,19 @@ export function RepoSelector({ appSessionId, currentRepo }: RepoSelectorProps) {
       // Extract repo name from URL (e.g., "owner/repo" from GitHub URL)
       const match = customRepoUrl.match(/github\.com\/([^\/]+\/[^\/]+)/);
       if (!match) {
-        console.error("Invalid GitHub URL format");
-        alert("Please enter a valid GitHub repository URL");
+        console.error("Invalid GitHub URL format:", customRepoUrl);
+        alert(
+          "Please enter a valid GitHub repository URL (e.g., https://github.com/owner/repo)"
+        );
         setIsConnecting(false);
         return;
       }
       const repoName = match[1];
 
-      console.log("Creating custom repository:", repoName);
+      console.log("Creating custom repository:", {
+        repoName,
+        url: customRepoUrl,
+      });
 
       const newRepo = await createGitHubRepo.mutateAsync({
         name: repoName,
@@ -153,16 +178,37 @@ export function RepoSelector({ appSessionId, currentRepo }: RepoSelectorProps) {
 
       console.log("Custom repository created in database:", newRepo);
 
-      await updateAppSession.mutateAsync({
+      const updateResult = await updateAppSession.mutateAsync({
         appSessionId,
         githubRepoId: newRepo.id,
       });
 
-      console.log("Custom repository connected to app session successfully");
+      console.log(
+        "Custom repository connected to app session successfully:",
+        updateResult
+      );
       setCustomRepoUrl("");
       setIsOpen(false);
     } catch (error) {
       console.error("Failed to create/connect custom repository:", error);
+
+      // More specific error handling
+      let errorMessage = "Failed to add repository. ";
+      if (error instanceof Error) {
+        if (error.message.includes("Unauthorized")) {
+          errorMessage += "You are not authorized to perform this action.";
+        } else if (error.message.includes("400")) {
+          errorMessage += "Invalid repository information provided.";
+        } else if (error.message.includes("500")) {
+          errorMessage += "Server error occurred. Please try again later.";
+        } else {
+          errorMessage += error.message;
+        }
+      } else {
+        errorMessage += "Please check the URL and try again.";
+      }
+
+      alert(errorMessage);
     } finally {
       setIsConnecting(false);
     }

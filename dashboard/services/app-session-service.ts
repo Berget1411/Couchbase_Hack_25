@@ -37,7 +37,7 @@ export const updateAppSession = async (
   return prisma.appSession.update({
     where: { id: appId },
     data: {
-      githubRepoId: githubRepoId,
+      githubRepoId: githubRepoId === undefined ? null : githubRepoId,
     },
     include: {
       githubRepo: true,
