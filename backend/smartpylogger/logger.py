@@ -108,34 +108,54 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
         ### ---- VALIDATE USER ---- ###
 
         ### Check if API key is provided and return session ID if it is, otherwise raise error
-        response = httpx.post(
-            self.api_url + "/api/auth/validate",
-            json={"api_key": self.api_key, "appSessionName": self.app_name}
-        )
-        
-        self.auth = response.json()["app_session_id"] ### Get session ID to see if API key is valid
-
-        print(self.auth)
-
-        if self.auth != "0":
-            print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    API key loaded successfully. Session initialization...")
-            print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    Session init success! Session ID: "
-                  f"{Fore.BLUE}{str(self.auth)}")
-            
-        elif self.auth == "0":
-            print(f"{Fore.RED}[ERROR]:    Invalid API key")
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid API key"
+        try:
+            response = httpx.post(
+                self.api_url + "/api/auth/validate",
+                json={"api_key": self.api_key, "appSessionName": self.app_name},
+                timeout=10.0  # 10 second timeout
             )
-        
-        else:
-            print(f"{Fore.RED}[ERROR]:      Unknown error during API key validation or session initialization")
+            
+            self.auth = response.json()["app_session_id"] ### Get session ID to see if API key is valid
+
+            # print(self.auth)
+
+            if self.auth != "0":
+                print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    API key loaded successfully. Session initialization...")
+                print(f"{Fore.MAGENTA}[STATUS]{Style.RESET_ALL}:    Session init success! Session ID: "
+                      f"{Fore.BLUE}{str(self.auth)}")
+                
+            elif self.auth == "0":
+                print(f"{Fore.RED}[ERROR]:    Invalid API key")
+                raise HTTPException(
+                    status_code=401,
+                    detail="Invalid API key"
+                )
+            
+            else:
+                print(f"{Fore.RED}[ERROR]:      Unknown error during API key validation or session initialization")
+                raise HTTPException(
+                    status_code=500,
+                    detail="Unknown error during API key validation"
+                )
+                
+        except httpx.ConnectError:
+            print(f"{Fore.RED}[ERROR]:    Cannot connect to validation server at {self.api_url}")
+            raise HTTPException(
+                status_code=503,
+                detail="Validation server unavailable"
+            )
+        except httpx.TimeoutException:
+            print(f"{Fore.RED}[ERROR]:    Timeout connecting to validation server")
+            raise HTTPException(
+                status_code=503,
+                detail="Validation server timeout"
+            )
+        except Exception as e:
+            print(f"{Fore.RED}[ERROR]:    Unexpected error during validation: {e}")
             raise HTTPException(
                 status_code=500,
-                detail="Unknown error during API key validation"
+                detail="Validation error"
             )
-        
 
         ### ---- CHECK USER MACHINE AND PICK EXEC. PATH ---- ###
 
@@ -220,10 +240,15 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
         # 4. If IP was blocked, now raise the HTTP error COPY OF CORS BROTHA
         if result.returncode != 0:
 
-            httpx.post(
-                self.api_url + "/api/schemas",
-                json=validated_payload
-            )
+            try:
+                httpx.post(
+                    self.api_url + "/api/schemas",
+                    json=validated_payload,
+                    timeout=5.0
+                )
+            except Exception as e:
+                print(f"{Fore.YELLOW}[WARNING]:    Could not send blocked request to API: {e}")
+
             raise HTTPException(
                 status_code=403,
                 detail=f"Request blocked: Unauthorized IP address. {result.stdout.strip()}"
@@ -241,10 +266,14 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
         )
         print("Go validator output:", repr(result.stdout))
 
-        httpx.post(
-            self.api_url + "/api/schemas",
-            json=validated_payload
-        )
+        try:
+            httpx.post(
+                self.api_url + "/api/schemas",
+                json=validated_payload,
+                timeout=5.0
+            )
+        except Exception as e:
+            print(f"{Fore.YELLOW}[WARNING]:    Could not send request to API: {e}")
 
         # Decriment the API limit
         self.api_limit_daily -= 1
