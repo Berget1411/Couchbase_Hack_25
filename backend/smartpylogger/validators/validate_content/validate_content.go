@@ -53,7 +53,7 @@ func loadBannedWords(filename string) ([]string, error) {
 // Function to check if the content contains any banned words
 func contains(content string, bannedWords []string) bool {
 	os.Stderr.WriteString("DEBUG: content =" + content)
-	fmt.Println("DEBUG: bannedWords =", bannedWords)
+	// fmt.Println("DEBUG: bannedWords =", bannedWords)
 	contentLower := strings.ToLower(content)
 
 	for _, word := range bannedWords {
@@ -98,7 +98,7 @@ func main() {
 	// Validation 1: Check if request_data contains banned words
 	requestDataStr := fmt.Sprintf("%v", payload.RequestData)
 	// fmt.Println("DEBUG: request_data =", requestDataStr)
-	os.Stderr.WriteString("DEBUG: request_data = " + requestDataStr + "\n")
+	// os.Stderr.WriteString("DEBUG: request_data = " + requestDataStr + "\n")
 	hasBannedWords := contains(requestDataStr, bannedWords)
 
 	if hasBannedWords {
