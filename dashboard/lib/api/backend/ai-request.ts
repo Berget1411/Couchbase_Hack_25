@@ -6,7 +6,7 @@ export const sendAiRequest = async (request: {
   user_query: UserQuery;
   input_requests: RequestData[];
 }) => {
-  const response = await baseBackendFetch("/dashboard/send-requests", {
+  const response = await baseBackendFetch("dashboard/send-requests", {
     method: "POST",
     body: JSON.stringify({
       repo_url: request.repo_url,
