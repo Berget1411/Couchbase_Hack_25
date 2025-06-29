@@ -35,7 +35,7 @@ app.add_middleware(
   };
 
   return (
-    <div className='relative mx-auto w-full'>
+    <div className='relative mx-auto w-max max-w-8xl'>
       <div className='px-4 py-12 sm:px-6 sm:py-16 lg:py-24 lg:px-8'>
         <div className='mx-auto lg:grid lg:grid-cols-12 lg:gap-8'>
           {/* Left Content */}
