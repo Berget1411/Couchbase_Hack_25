@@ -224,7 +224,7 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
             timeout=5
         )
 
-        print("Go IP validator output:", repr(result.stdout))
+        # print("Go IP validator output:", repr(result.stdout))
         if result.stdout:
             try:
                 validated_payload = json.loads(result.stdout)
@@ -264,7 +264,7 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
             text=True,
             timeout=5
         )
-        print("Go validator output:", repr(result.stdout))
+        # print("Go validator output:", repr(result.stdout))
 
         try:
             httpx.post(
