@@ -14,7 +14,7 @@ import Image from "next/image";
 
 export function Features() {
   return (
-    <div className='relative mx-auto w-max max-w-8xl'>
+    <div className='relative mx-auto w-full max-w-7xl'>
       <div className='px-4 py-12 sm:px-6 sm:py-16 lg:py-24 lg:px-8'>
         <BentoGrid className='mx-auto md:auto-rows-[20rem]'>
           {items.map((item, i) => (
