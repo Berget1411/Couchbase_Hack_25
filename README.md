@@ -6,7 +6,7 @@
 ## ▒▒▒ P R E L U D E ▒▒▒
 SmartPyLogger was built in just under two weeks of focused execution during the June–July 2025 AWS x Couchbase x Cillers hackathon.
 
-Before we signed up, I (Niklavs Visockis) and Jonas Lorenz — my friend, backend/ML dev, and teammate from the KTH AI Society (AIS) — had just wrapped an internal demo for Twiga AI. We’d implemented graphRAG using Neo4j, then spent hours talking. Goals, build philosophies, future paths. I told him about my previous hackathons. What worked, what didn’t. What I’d do differently. I asked if he’d join the next one.
+Before we signed up, I (Niklavs Visockis) and Jonas Lorenz,  my friend, backend/ML dev, and teammate from the KTH AI Society (AIS), had just wrapped an internal demo for Twiga AI. We’d implemented graphRAG using Neo4j, then spent hours talking. Goals, build philosophies, future paths. I told him about my previous hackathons. What worked, what didn’t. What I’d do differently. I asked if he’d join the next one.
 
 A few days later, Couchbase hit my inbox. I shot him a message: "JOIN QUICK APPLY APPLY NOWWWWW".
 
