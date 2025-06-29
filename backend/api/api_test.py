@@ -1,5 +1,5 @@
 import asyncio
-from api.api_server import push_selected_requests_response
+from api_server import push_selected_requests_response
 
 # Use the mock query_dict above
 query_dict = {
