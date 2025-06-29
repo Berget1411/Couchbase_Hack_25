@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { QuerySelector } from "@/components/ui/query-selector";
 import { useSendAiRequest } from "@/hooks/api/backend/use-send-ai-request";
 import { useTableContext } from "@/components/provider/table-provider";
-import { UserQuery, PREDEFINED_QUERIES } from "@/types/request";
+import { UserQuery, PREDEFINED_QUERIES, RequestData } from "@/types/request";
 import { IconLoader2 } from "@tabler/icons-react";
-import { Github } from "lucide-react";
+import { Github, ChevronDown, GitPullRequest, Copy, Check } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -33,10 +33,48 @@ import {
 import { useUpdateAppSession } from "@/hooks/api/dashboard/use-app-session";
 import { GitHubRepo } from "@/lib/api/github-service";
 
+// Type for AI analysis response
+interface AnalysisResponse {
+  question_rephrase?: string;
+  proposed_fix?: string;
+  error?: string;
+}
+
 interface AiAnalysisProps {
   repoUrl?: string;
   appSessionId: string;
 }
+
+// Helper function to format the AI analysis result for better UX
+const formatAnalysisResult = (
+  data: AnalysisResponse,
+  selectedRows: RequestData[]
+) => {
+  // Extract request summary
+  const requestSummary = selectedRows
+    .map((req, index) => {
+      const flagText =
+        req.flag === 0
+          ? "✅ Good"
+          : req.flag === 1
+          ? "⚠️ Flagged"
+          : "🚫 Blocked";
+      return `${index + 1}. ${req.method} ${req.requestData} (${flagText})`;
+    })
+    .join("\n");
+
+  // Format the response
+  return `📋 ANALYSIS SUMMARY
+${data.question_rephrase || "No analysis available"}
+
+🔍 REQUESTS ANALYZED (${selectedRows.length} total):
+${requestSummary}
+
+💡 FINDINGS & RECOMMENDATIONS:
+${data.proposed_fix || "No specific recommendations available"}
+
+${data.error ? `❌ ERROR: ${data.error}` : ""}`.trim();
+};
 
 export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
   const { selectedRows } = useTableContext();
@@ -48,11 +86,24 @@ export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
   const [customRepoUrl, setCustomRepoUrl] = useState("");
   const [selectedRepoId, setSelectedRepoId] = useState<string>("");
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isCopied, setIsCopied] = useState(false);
 
   const { mutate: sendAiRequest, isPending } = useSendAiRequest();
   const { data: githubRepos = [], isLoading, error } = useGitHubRepositories();
   const createGitHubRepo = useCreateGitHubRepo();
   const updateAppSession = useUpdateAppSession();
+
+  // Copy to clipboard function
+  const handleCopyResult = async () => {
+    try {
+      await navigator.clipboard.writeText(result);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
 
   // Set default value when GitHub repos are loaded
   useEffect(() => {
@@ -169,7 +220,12 @@ export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
       },
       {
         onSuccess: (data) => {
-          setResult(JSON.stringify(data, null, 2));
+          // Format the response for better user experience
+          const formattedResult = formatAnalysisResult(
+            data as AnalysisResponse,
+            selectedRows
+          );
+          setResult(formattedResult);
         },
         onError: (error) => {
           console.error("AI analysis failed:", error);
@@ -296,9 +352,25 @@ export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
               selected
             </Badge>
           </div>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => setIsExpanded(!isExpanded)}
+            className='h-8 w-8 p-0 hover:bg-muted'
+          >
+            <ChevronDown
+              className={`h-4 w-4 transition-transform duration-200 ${
+                isExpanded ? "rotate-180" : "rotate-0"
+              }`}
+            />
+          </Button>
         </div>
 
-        <div className='border-t px-4 py-4 lg:px-6'>
+        <div
+          className={`border-t px-4 lg:px-6 overflow-hidden transition-all duration-300 ease-in-out ${
+            isExpanded ? "max-h-screen py-4" : "max-h-0 py-0"
+          }`}
+        >
           <div className='flex flex-col gap-4 lg:flex-row lg:items-end'>
             <div className='flex-1'>
               <QuerySelector
@@ -327,17 +399,68 @@ export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
           </div>
 
           {result && (
-            <div className='mt-4'>
+            <div className='mt-4 space-y-4'>
               <div className='overflow-hidden rounded-md border bg-muted/30'>
-                <div className='border-b bg-muted px-3 py-2'>
+                <div className='border-b bg-muted px-3 py-2 flex items-center justify-between'>
                   <span className='text-xs font-medium text-muted-foreground'>
                     Analysis Result
                   </span>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={handleCopyResult}
+                    className='h-6 w-6 p-0 hover:bg-muted-foreground/10'
+                  >
+                    {isCopied ? (
+                      <Check className='h-3 w-3 text-green-600' />
+                    ) : (
+                      <Copy className='h-3 w-3' />
+                    )}
+                  </Button>
                 </div>
                 <div className='p-3'>
                   <pre className='text-xs text-muted-foreground whitespace-pre-wrap overflow-auto max-h-60'>
                     {result}
                   </pre>
+                </div>
+              </div>
+
+              {/* PR Creation Section */}
+              <div className='overflow-hidden rounded-md border bg-background'>
+                <div className='border-b bg-muted px-3 py-2'>
+                  <span className='text-xs font-medium text-muted-foreground'>
+                    Next Steps
+                  </span>
+                </div>
+                <div className='p-4'>
+                  <div className='flex items-start gap-3'>
+                    <div className='rounded-full bg-blue-50 p-2'>
+                      <GitPullRequest className='h-4 w-4 text-blue-600' />
+                    </div>
+                    <div className='flex-1 space-y-2'>
+                      <h4 className='text-sm font-medium text-foreground'>
+                        Create Pull Request
+                      </h4>
+                      <p className='text-xs text-muted-foreground'>
+                        Based on the analysis, would you like to create a pull
+                        request in the repository to implement the suggested
+                        fixes?
+                      </p>
+                      <div className='flex gap-2 pt-1'>
+                        <Button
+                          size='sm'
+                          onClick={() => {
+                            // TODO: Implement PR creation functionality
+                            console.log("Create PR clicked");
+                          }}
+                          className='h-8'
+                        >
+                          <GitPullRequest className='mr-1.5 h-3 w-3' />
+                          Create PR
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
