@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -18,18 +18,13 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 
+requires-python = ">=3.8"
 dependencies = [
-    "colorama",
-    "httpx",
-    "fastapi",
-    "starlette"
+    "fastapi>=0.68.0",
+    "uvicorn>=0.15.0",
+    "requests>=2.25.0",
+    "python-dotenv>=0.19.0"
 ]
-
-[tool.setuptools]
-packages = ["smartpylogger"]
-
-[project.urls]
-Homepage = "https://github.com/yourusername/smartpylogger"
 
 [project.optional-dependencies]
 dev = [
@@ -43,6 +38,10 @@ dev = [
 [project.scripts]
 couchbase-middleware = "couchbase_middleware.cli:main"
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["couchbase_middleware*"]
+
 [tool.black]
 line-length = 88
 target-version = ['py38']
@@ -52,9 +51,3 @@ python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"] 

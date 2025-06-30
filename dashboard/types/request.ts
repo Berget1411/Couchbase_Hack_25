@@ -7,7 +7,7 @@ export const requestSchema = z.object({
   senderIp: z.string(),
   sessionId: z.string(),
   apiKey: z.string(),
-  flag: z.string(),
+  flag: z.number().min(0).max(2), // 0=good, 1=flagged request body, 2=blocked origin
   requestData: z.string(),
   docId: z.string(),
 });

@@ -163,42 +163,70 @@ async def validate_api_key_client(auth_dict: Dict[str, Any]):
 
 @app.post("/dashboard/send-requests")
 async def push_selected_requests_response(query_dict: Dict[str, Any]):
-    repo_url = query_dict["repo_url"]
-    user_query = query_dict["user_query"]
-    input_requests = query_dict.get("input_requests", [])
-    # Call the analysis script
-    result = subprocess.run(
-        [
-            "python3", "analyze_repo.py", repo_url, user_query, *input_requests
-        ],
-        capture_output=True,
-        text=True,
-        check=True
-    )
-    #print("STDOUT:", result.stdout)
-    #print("STDERR:", result.stderr)
-    
-    # Parse the JSON response
-    raw_output = result.stdout.strip()
-
-    # Remove everything before the first '{'
-    json_start = raw_output.find('{')
-    if json_start != -1:
-        json_str = raw_output[json_start:]
-    else:
-        json_str = raw_output
-
     try:
-        parsed_result = json.loads(json_str)
-        print("Parsed JSON:", parsed_result)
-        return parsed_result
-    except json.JSONDecodeError as e:
+        repo_url = query_dict["repo_url"]
+        user_query = query_dict["user_query"]
+        input_requests = query_dict.get("input_requests", [])
+        
+        print(f"Analyzing repo: {repo_url}")
+        print(f"Query: {user_query}")
+        print(f"Input requests: {input_requests}")
+        
+        # Call the analysis script
+        result = subprocess.run(
+            [
+                "python3", "analyze_repo.py", repo_url, user_query, *input_requests
+            ],
+            capture_output=True,
+            text=True,
+            cwd=os.path.dirname(os.path.abspath(__file__)),  # Ensure correct working directory
+            check=False  # Don't raise exception on non-zero exit
+        )
+        
+        print(f"Return code: {result.returncode}")
+        print(f"STDOUT: {result.stdout}")
+        print(f"STDERR: {result.stderr}")
+        
+        if result.returncode != 0:
+            return {
+                "error": f"Script failed with return code {result.returncode}",
+                "stderr": result.stderr,
+                "stdout": result.stdout,
+                "question_rephrase": f"Error analyzing: {user_query}",
+                "Code snippet": "Script execution failed",
+                "proposed_fix": f"Script error: {result.stderr}"
+            }
+        
+        # Parse the JSON response
+        raw_output = result.stdout.strip()
+
+        # Remove everything before the first '{'
+        json_start = raw_output.find('{')
+        if json_start != -1:
+            json_str = raw_output[json_start:]
+        else:
+            json_str = raw_output
+
+        try:
+            parsed_result = json.loads(json_str)
+            print("Parsed JSON:", parsed_result)
+            return parsed_result
+        except json.JSONDecodeError as e:
+            return {
+                "error": "Failed to parse JSON response",
+                "raw_output": raw_output,
+                "question_rephrase": f"Error analyzing: {user_query}",
+                "Code snippet": "No code snippet available due to parsing error",
+                "proposed_fix": "Unable to provide fix due to response parsing error"
+            }
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
+        traceback.print_exc()
         return {
-            "error": "Failed to parse JSON response",
-            "raw_output": raw_output,
-            "question_rephrase": f"Error analyzing: {user_query}",
-            "Code snippet": "No code snippet available due to parsing error",
-            "proposed_fix": "Unable to provide fix due to response parsing error"
+            "error": f"Unexpected error: {str(e)}",
+            "question_rephrase": f"Error analyzing: {query_dict.get('user_query', 'unknown')}",
+            "Code snippet": "Unexpected error occurred",
+            "proposed_fix": f"Server error: {str(e)}"
         }
 
 @app.post("/dashboard/git-inference")
