@@ -38,7 +38,7 @@ app = FastAPI(title="SmartPyLogger API", version="1.0.0")
 # CORS for dashboard connection
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://dashboard:3000"],
+    allow_origins=["http://localhost:3000", "http://dashboard:3000", "https://smartpylogger.vercel.app", "*"], # This is the frontend, used for dev and prod dont hate us
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -147,7 +147,7 @@ async def validate_api_key_client(auth_dict: Dict[str, Any]):
     Essentially just checks w frontend if user is registered.
     """
 
-    response = requests.post("http://localhost:3000/api/validate-api-key", json=auth_dict)
+    response = requests.post("https://smartpylogger.vercel.app/api/validate-api-key", json=auth_dict) # This feels fine
 
     print(response.json)
 
