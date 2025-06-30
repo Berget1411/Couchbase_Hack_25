@@ -8,9 +8,9 @@ import { auth } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { "app-session-id": string } }
+  { params }: { params: Promise<{ "app-session-id": string }> }
 ) {
-  const { "app-session-id": appSessionId } = params;
+  const { "app-session-id": appSessionId } = await params;
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,7 +22,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { "app-session-id": string } }
+  { params }: { params: Promise<{ "app-session-id": string }> }
 ) {
   const { "app-session-id": appSessionId } = await params;
   const session = await auth.api.getSession({ headers: request.headers });
@@ -47,7 +47,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { "app-session-id": string } }
+  { params }: { params: Promise<{ "app-session-id": string }> }
 ) {
   const { "app-session-id": appSessionId } = await params;
   const session = await auth.api.getSession({ headers: request.headers });

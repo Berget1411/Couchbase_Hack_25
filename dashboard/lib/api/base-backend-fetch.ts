@@ -2,6 +2,15 @@ export const baseBackendFetch = async <T>(
   query: string,
   options?: RequestInit
 ): Promise<T> => {
+  const backendUrl =
+    process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL;
+
+  if (!backendUrl) {
+    throw new Error(
+      "Backend URL is not configured. Please set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL environment variable."
+    );
+  }
+
   // Don't set Content-Type header for FormData requests
   // The browser will automatically set the correct Content-Type with boundary for FormData
   const headers =
@@ -12,7 +21,7 @@ export const baseBackendFetch = async <T>(
           ...options?.headers,
         };
 
-  const response = await fetch(`${process.env.BACKEND_URL}/${query}`, {
+  const response = await fetch(`${backendUrl}/${query}`, {
     ...options,
     headers,
     credentials: "include",
