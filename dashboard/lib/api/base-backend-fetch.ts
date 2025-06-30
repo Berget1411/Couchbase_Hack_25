@@ -2,12 +2,24 @@ export const baseBackendFetch = async <T>(
   query: string,
   options?: RequestInit
 ): Promise<T> => {
-  const backendUrl =
-    process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL;
+  // In production (Vercel), use the proxy to avoid mixed content issues
+  // In development, directly connect to backend
+  const isProduction =
+    typeof window !== "undefined" && window.location.protocol === "https:";
 
-  if (!backendUrl) {
-    throw new Error(
-      "Backend URL is not configured. Please set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL environment variable."
+  const backendUrl = isProduction
+    ? `/api/backend-proxy` // Use proxy in production
+    : process.env.NEXT_PUBLIC_BACKEND_URL ||
+      process.env.BACKEND_URL ||
+      "http://localhost:8000";
+
+  if (
+    !isProduction &&
+    !process.env.NEXT_PUBLIC_BACKEND_URL &&
+    !process.env.BACKEND_URL
+  ) {
+    console.warn(
+      "Backend URL is not configured or using fallback. Please set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL environment variable."
     );
   }
 
