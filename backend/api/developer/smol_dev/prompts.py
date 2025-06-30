@@ -198,9 +198,9 @@ def analyze_codebase(codebase_summary: str, user_query: str, input_requests: lis
         "You are an expert codebase analyst. Given a summary of a codebase, a user query, and a set of API requests, "
         "identify the most relevant files or code snippets that could be causing issues or are related to the query. "
         "You must respond with a valid JSON object containing exactly these three keys:\n"
-        "- 'question_rephrase': Summarize and reflect on the requests, code and query that the user sent. Maybe what the requets mean and what the code does.\n"
-        "- 'code snippet': A relevant code snippet from the codebase that addresses the query or requests\n"
-        "- 'proposed_fix': A suggested fix or improvement for the code affected by the requests, or a way to make it better and safer\n\n"
+        "- 'question_rephrase': Summarize and reflect on the requests, code and query that the user sent. Don't just rephrase the question, nuance it and explain shortly what the user is actually looking for. If the requests contain flag: 1 that means they were flagged by censorship, if flag: 2 then they were from a dissalowed origin. Make sure to inform the user of this.\n"
+        "- 'code snippet': A relevant code snippet from the codebase that addresses the query or requests that you get as an input. \n"
+        "- 'proposed_fix': A suggested fix or improvement for the code affected by the request/requests, or a way to make it better and safer. This could be as general as adding error-handling, renaming the endpoint for clarity or changing logic in how the request is handled.\n\n"
         "Ensure your response is valid JSON and includes all three keys."
     )
     messages = [

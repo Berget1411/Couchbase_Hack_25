@@ -4,7 +4,7 @@ with open("smartpylogger/README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 setup(
     name="smartpylogger",
-    version="0.1.0",
+    version="0.2.0",
     description="Lightweight structured logger for Py projects with AI analysis!",
     packages=find_packages(),
     # install_requires=[],  # or just remove this line entirely
