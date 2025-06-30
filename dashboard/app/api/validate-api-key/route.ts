@@ -3,9 +3,6 @@ import { validateApiKey } from "@/lib/api/service";
 import { createAppSession } from "@/services/app-session-service";
 import { getUserByApiKey } from "@/services/user-service";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 export async function POST(request: NextRequest) {
   const { apiKey, appSessionName } = await request.json();
 

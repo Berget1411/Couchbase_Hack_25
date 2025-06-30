@@ -6,9 +6,6 @@ import {
 } from "@/services/app-session-service";
 import { auth } from "@/lib/auth";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ "app-session-id": string }> }
