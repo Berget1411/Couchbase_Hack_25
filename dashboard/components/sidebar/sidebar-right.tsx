@@ -81,7 +81,7 @@ export function SidebarRight({
     let messageContent = inputValue;
     if (selectedRows.length > 0) {
       const contextInfo = selectedRows
-        .map((row) => `- ${row.header} (${row.type}, ${row.status})`)
+        .map((row) => `- ${row.method} (${row.senderIp}, ${row.sessionId})`)
         .join("\n");
       messageContent = `Context (${selectedRows.length} selected rows):\n${contextInfo}\n\nQuestion: ${inputValue}`;
     }
@@ -176,13 +176,13 @@ export function SidebarRight({
                 key={row.id}
                 className='bg-background rounded border p-2 text-xs'
               >
-                <div className='font-medium truncate'>{row.header}</div>
+                <div className='font-medium truncate'>{row.method}</div>
                 <div className='flex gap-2 mt-1'>
                   <Badge variant='outline' className='text-xs'>
-                    {row.type}
+                    {row.method}
                   </Badge>
                   <Badge variant='outline' className='text-xs'>
-                    {row.status}
+                    {row.senderIp}
                   </Badge>
                 </div>
               </div>
