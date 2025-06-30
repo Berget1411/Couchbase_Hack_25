@@ -2,7 +2,7 @@
 import React from "react";
 import { ChartAreaInteractive } from "@/components/sidebar/chart-area-interactive";
 import { DataTable } from "@/components/sidebar/data-table";
-import { AiAnalysis } from "@/components/app-page/ai-analysis";
+import { AiAnalysis } from "@/components/ai-analysis/ai-analysis";
 import { useAppSessionRequests } from "@/hooks/api/backend/use-app-session-requests";
 import { useGetAppSession } from "@/hooks/api/dashboard/use-app-session";
 import { useParams } from "next/navigation";

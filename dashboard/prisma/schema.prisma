@@ -20,11 +20,15 @@ model User {
   emailVerified Boolean
   image         String?
   apiKey        String    @unique @default(cuid())
+  freeAnalysisUsed Int @default(0)
+  paidCredits   Int @default(0)
+  totalAnalysisCount Int @default(0)
   createdAt     DateTime
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
   appSessions   AppSession[]
+  analysisHistory AnalysisHistory[]
   @@unique([email])
   @@map("user")
 }
@@ -95,5 +99,19 @@ model AppGithubRepo {
   updatedAt DateTime @updatedAt
   appSessions AppSession[]
   @@map("app_github_repo")
+}
+
+model AnalysisHistory {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repoUrl String
+  query String
+  requestCount Int
+  wasFree Boolean
+  creditsUsed Int @default(1)
+  createdAt DateTime @default(now())
+  
+  @@map("analysis_history")
 }
 

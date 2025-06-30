@@ -8,7 +8,17 @@ import { useSendAiRequest } from "@/hooks/api/backend/use-send-ai-request";
 import { useTableContext } from "@/components/provider/table-provider";
 import { UserQuery, PREDEFINED_QUERIES, RequestData } from "@/types/request";
 import { IconLoader2 } from "@tabler/icons-react";
-import { Github, ChevronDown, GitPullRequest, Copy, Check } from "lucide-react";
+import {
+  Github,
+  ChevronDown,
+  GitPullRequest,
+  Copy,
+  Check,
+  Zap,
+  CreditCard,
+} from "lucide-react";
+import { useCheckCredits } from "@/hooks/api/use-credits";
+import { CreditPurchase } from "@/components/credits/credit-purchase";
 import {
   Sheet,
   SheetContent,
@@ -88,11 +98,13 @@ export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
+  const [showCreditPurchase, setShowCreditPurchase] = useState(false);
 
   const { mutate: sendAiRequest, isPending } = useSendAiRequest();
   const { data: githubRepos = [], isLoading, error } = useGitHubRepositories();
   const createGitHubRepo = useCreateGitHubRepo();
   const updateAppSession = useUpdateAppSession();
+  const { data: creditCheck, refetch: refetchCredits } = useCheckCredits();
 
   // Copy to clipboard function
   const handleCopyResult = async () => {
@@ -201,7 +213,7 @@ export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
     }
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!repoUrl) {
       alert("Please connect a repository first to analyze requests.");
       return;
@@ -212,27 +224,74 @@ export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
       return;
     }
 
-    sendAiRequest(
-      {
-        repo_url: repoUrl,
-        user_query: query,
-        input_requests: selectedRows,
-      },
-      {
-        onSuccess: (data) => {
-          // Format the response for better user experience
-          const formattedResult = formatAnalysisResult(
-            data as AnalysisResponse,
-            selectedRows
-          );
-          setResult(formattedResult);
+    // Check if user has enough credits
+    if (creditCheck && !creditCheck.canAnalyze) {
+      setShowCreditPurchase(true);
+      return;
+    }
+
+    // Consume credits first
+    try {
+      const consumeResponse = await fetch("/api/credits/consume", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        onError: (error) => {
-          console.error("AI analysis failed:", error);
-          setResult("Analysis failed. Please try again.");
-        },
+        credentials: "include",
+        body: JSON.stringify({
+          repoUrl: repoUrl,
+          query: typeof query === "object" ? JSON.stringify(query) : query,
+          requestCount: selectedRows.length,
+        }),
+      });
+
+      if (!consumeResponse.ok) {
+        if (consumeResponse.status === 402) {
+          // Payment required
+          setShowCreditPurchase(true);
+          return;
+        }
+        throw new Error("Failed to consume credits");
       }
-    );
+
+      const consumeData = await consumeResponse.json();
+
+      // Refetch credit status
+      refetchCredits();
+
+      // Now proceed with AI analysis
+      sendAiRequest(
+        {
+          repo_url: repoUrl,
+          user_query: query,
+          input_requests: selectedRows,
+        },
+        {
+          onSuccess: (data) => {
+            // Format the response for better user experience
+            const formattedResult = formatAnalysisResult(
+              data as AnalysisResponse,
+              selectedRows
+            );
+            setResult(formattedResult);
+
+            // Show credit usage info
+            if (consumeData.wasFree) {
+              console.log("Used free analysis credit");
+            } else {
+              console.log("Used paid analysis credit");
+            }
+          },
+          onError: (error) => {
+            console.error("AI analysis failed:", error);
+            setResult("Analysis failed. Please try again.");
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Credit consumption failed:", error);
+      alert("Failed to process credits. Please try again.");
+    }
   };
 
   if (selectedRows.length === 0) {
@@ -351,6 +410,17 @@ export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
               {selectedRows.length} {selectedRows.length === 1 ? "row" : "rows"}{" "}
               selected
             </Badge>
+            {creditCheck && (
+              <Badge
+                variant='outline'
+                className='text-xs flex items-center gap-1'
+              >
+                <Zap className='h-3 w-3' />
+                {creditCheck.freeAnalysisRemaining > 0
+                  ? `${creditCheck.freeAnalysisRemaining} free`
+                  : `${creditCheck.paidCredits} credits`}
+              </Badge>
+            )}
           </div>
           <Button
             variant='ghost'
@@ -381,21 +451,44 @@ export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
               />
             </div>
 
-            <Button
-              onClick={handleAnalyze}
-              disabled={isPending || !repoUrl || selectedRows.length === 0}
-              size='sm'
-              className='w-fit'
-            >
-              {isPending ? (
-                <>
-                  <IconLoader2 className='mr-2 h-3 w-3 animate-spin' />
-                  Analyzing...
-                </>
-              ) : (
-                <>Analyze</>
+            <div className='flex items-center gap-2'>
+              <Button
+                onClick={handleAnalyze}
+                disabled={
+                  isPending ||
+                  !repoUrl ||
+                  selectedRows.length === 0 ||
+                  (creditCheck && !creditCheck.canAnalyze)
+                }
+                size='sm'
+                className='w-fit'
+              >
+                {isPending ? (
+                  <>
+                    <IconLoader2 className='mr-2 h-3 w-3 animate-spin' />
+                    Analyzing...
+                  </>
+                ) : creditCheck && !creditCheck.canAnalyze ? (
+                  <>
+                    <CreditCard className='mr-2 h-3 w-3' />
+                    Need Credits
+                  </>
+                ) : (
+                  <>Analyze</>
+                )}
+              </Button>
+
+              {creditCheck && !creditCheck.canAnalyze && (
+                <Button
+                  onClick={() => setShowCreditPurchase(true)}
+                  size='sm'
+                  variant='outline'
+                >
+                  <CreditCard className='mr-2 h-3 w-3' />
+                  Buy Credits
+                </Button>
               )}
-            </Button>
+            </div>
           </div>
 
           {result && (
@@ -467,6 +560,22 @@ export function AiAnalysis({ repoUrl, appSessionId }: AiAnalysisProps) {
           )}
         </div>
       </div>
+
+      {/* Credit Purchase Modal */}
+      <Sheet open={showCreditPurchase} onOpenChange={setShowCreditPurchase}>
+        <SheetContent className='sm:max-w-lg'>
+          <SheetHeader>
+            <SheetTitle>Purchase AI Analysis Credits</SheetTitle>
+            <SheetDescription>
+              You need credits to perform AI analysis. Each analysis costs 1
+              credit ($0.30).
+            </SheetDescription>
+          </SheetHeader>
+          <div className='mt-6'>
+            <CreditPurchase onClose={() => setShowCreditPurchase(false)} />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
