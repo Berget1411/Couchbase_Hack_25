@@ -1,7 +1,7 @@
 # backend/smartpylogger/__init__.py
 
 # Version (optional, but good practice)
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # Import and expose your main classes/functions
 from .logger import LoggingMiddleware

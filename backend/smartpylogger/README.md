@@ -52,7 +52,7 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
 ## Installation
 
 ```bash
-pip install -e .
+pip install smartpylogger .
 ```
 
 ## Usage
