@@ -3,6 +3,9 @@ import { auth } from "@/lib/auth";
 import { GitHubService } from "@/lib/api/github-service";
 import { prisma } from "@/lib/prisma";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 // Get user's GitHub repositories
 export async function GET(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
