@@ -3,11 +3,13 @@ export const baseBackendFetch = async <T>(
   options?: RequestInit
 ): Promise<T> => {
   const backendUrl =
-    process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL;
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.BACKEND_URL ||
+    "http://localhost:8000";
 
-  if (!backendUrl) {
-    throw new Error(
-      "Backend URL is not configured. Please set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL environment variable."
+  if (!backendUrl || backendUrl === "http://localhost:8000") {
+    console.warn(
+      "Backend URL is not configured or using fallback. Please set NEXT_PUBLIC_BACKEND_URL or BACKEND_URL environment variable."
     );
   }
 
