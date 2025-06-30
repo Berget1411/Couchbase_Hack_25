@@ -1,4 +1,4 @@
-import { baseBackendFetch } from "./base-backend-fetch";
+// import { baseBackendFetch } from "./base-backend-fetch";
 
 export const chatFetch = async (message: string) => {
   // const response = await baseBackendFetch("/chat", {
