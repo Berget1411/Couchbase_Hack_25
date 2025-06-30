@@ -1,19 +1,32 @@
 version: "3.8"
 
 services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-admin}
+      POSTGRES_DB: ${DB_NAME:-smartpylogger_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   api:
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      - db
     ports:
       - "8000:8000"
     environment:
       # Database
-      - DB_HOST=${DB_HOST:-postgres}
+      - DB_HOST=db
       - DB_NAME=${DB_NAME:-smartpylogger_db}
       - DB_USER=${DB_USER:-admin}
       - DB_PASSWORD=${DB_PASSWORD:-admin}
-      - DB_PORT=${DB_PORT:-5432}
+      - DB_PORT=5432
       
       # Couchbase
       - CB_USER=${CB_USER}
@@ -34,3 +47,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s 
+
+volumes:
+  pgdata: 

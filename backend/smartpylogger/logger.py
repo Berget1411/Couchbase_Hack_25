@@ -25,7 +25,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.base import RequestResponseEndpoint
 
 
-API_URL="http://localhost:8000"  ### CHANGE TO EXTERNAL IP LATER
+API_URL="http://51.12.61.210:8000"  ### CHANGE TO EXTERNAL IP LATER
 
 class ClientError(Exception):
     pass
