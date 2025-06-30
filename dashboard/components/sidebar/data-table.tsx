@@ -188,7 +188,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     accessorKey: "flag",
     header: "Flag",
     cell: ({ row }) => (
-      <Badge variant={row.original.flag === "0" ? "secondary" : "destructive"}>
+      <Badge variant={row.original.flag === 0 ? "secondary" : "destructive"}>
         {row.original.flag}
       </Badge>
     ),
