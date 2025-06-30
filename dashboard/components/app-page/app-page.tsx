@@ -2,7 +2,7 @@
 import React from "react";
 import { ChartAreaInteractive } from "@/components/sidebar/chart-area-interactive";
 import { DataTable } from "@/components/sidebar/data-table";
-import { AiAnalysis } from "@/components/ai-analysis/ai-analysis";
+import { AiAnalysisWithRepo } from "@/components/ai-analysis";
 import { useAppSessionRequests } from "@/hooks/api/backend/use-app-session-requests";
 import { useGetAppSession } from "@/hooks/api/dashboard/use-app-session";
 import { useParams } from "next/navigation";
@@ -85,7 +85,7 @@ function transformRequestsToTableData(
     senderIp: request.Requests?.sender_ip || "N/A",
     sessionId: request.Requests?.session_id || "N/A",
     apiKey: request.Requests?.api_key || "N/A",
-    flag: request.Requests?.flag?.toString() || "0",
+    flag: request.Requests?.flag || 0,
     requestData: JSON.stringify(request.Requests?.request_data || {}),
     docId: request.doc_id || "N/A",
   }));
@@ -222,9 +222,18 @@ export function AppDashboard() {
         <ChartAreaInteractive data={chartData} isLoading={isLoading} />
       </div>
       <div className='px-4 lg:px-6'>
-        <AiAnalysis
-          repoUrl={appSession?.githubRepo?.url}
+        <AiAnalysisWithRepo
           appSessionId={appId as string}
+          repoUrl={appSession?.githubRepo?.url}
+          currentRepo={
+            appSession?.githubRepo
+              ? {
+                  id: appSession.githubRepo.id,
+                  name: appSession.githubRepo.name,
+                  url: appSession.githubRepo.url,
+                }
+              : null
+          }
         />
       </div>
       <DataTable data={tableData} isLoading={isLoading} />
