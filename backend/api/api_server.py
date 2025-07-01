@@ -45,7 +45,8 @@ app.add_middleware(
 )
 
 # Couchbase connection
-endpoint = "couchbases://cb.82kuz4rgjdzyhlh.cloud.couchbase.com"
+endpoint = os.getenv("CB_CONNECT_STRING")
+backup_endpoint = os.getenv("BACKUP_CONNECT_STRING")
 cb_username = os.getenv("CB_USER")
 cb_password = os.getenv("CB_PASSWORD")
 cb_bucketname = os.getenv("BUCKET_NAME")
@@ -71,16 +72,6 @@ class UserRegistration(BaseModel):
 
 @app.post("/api/schemas")
 async def submit_schema(payload: Dict[str, Any]):
-    """
-    payload = {
-	"type": "airline",
-	"id": 8091,
-	"callsign": "CBS",
-	"iata": None,
-	"icao": None,
-	"name": "Couchbase Airways",
-    }
-    """
 
     key = payload['timestamp'] + ":" + payload["api_key"] + ":" + str(payload["session_id"])
     
@@ -93,6 +84,9 @@ async def submit_schema(payload: Dict[str, Any]):
 
     try:
         print("SENDING")
+
+        while True:
+            raise KeyError
         cluster = Cluster(endpoint, options) # type: ignore
 
         # Wait until the cluster is ready for use.
@@ -135,9 +129,26 @@ async def submit_schema(payload: Dict[str, Any]):
             print(e)
         """
         
-        
     except Exception as e:
-        traceback.print_exc()
+        # backup endpoint
+        print("SENDING")
+        cluster = Cluster(backup_endpoint, options) # type: ignore
+
+        # Wait until the cluster is ready for use.
+        cluster.wait_until_ready(timedelta(seconds=5))
+
+        # Get a reference to our bucket
+        cb = cluster.bucket(cb_bucketname)
+
+        # Get a reference to our collection
+        cb_coll = cb.scope(cb_scope).collection(cb_collection) # type: ignore
+
+        # Simple K-V operation - to create a document with specific ID
+        try:
+            result = cb_coll.insert(key, payload)
+            print("\nCreate document success. CAS: ", result.cas)
+        except CouchbaseException as e:
+            print(e)
 
 
 @app.post("/api/auth/validate")
