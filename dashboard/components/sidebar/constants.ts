@@ -29,7 +29,7 @@ export const data = {
     // },
     {
       title: "Documentation",
-      url: "#",
+      url: "/docs",
       icon: IconFileText,
     },
     // {
