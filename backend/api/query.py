@@ -145,18 +145,6 @@ class QueryDB():
             
         except Exception as e:
             print(f"Database query error: {e}")
-            
-            # Check if it's an index error and try to create the index
-            if "No index available" in str(e) or "QueryIndexNotFoundException" in str(e):
-                print("Index not found. Attempting to create primary index...")
-                try:
-                    self.create_primary_index()
-                    # Try the query again
-                    print("Retrying query after creating index...")
-                    return self.get_requests_by_ids(session_id, requests_per_session)
-                except Exception as index_error:
-                    print(f"Failed to create index: {index_error}")
-            
             import traceback
             traceback.print_exc()
             return []
@@ -221,73 +209,10 @@ class QueryDB():
         except CouchbaseException as e:
             print(f"Error clearing database: {e}")
             
-    def create_primary_index(self) -> None:
-        """
-        Create a primary index on the collection if it doesn't exist.
-        This is required for N1QL queries to work.
-        """
-        cluster = Cluster.connect(
-            self.endpoint,
-            ClusterOptions(PasswordAuthenticator(self.user, self.password)))
-        
-        try:
-            # Create primary index
-            index_query = f"""
-                CREATE PRIMARY INDEX ON `{self.bucket}`.`{self.scope}`.`{self.collect}`
-                USING GSI
-                WITH {{"defer_build": false}};
-                """
-            
-            print(f"Creating primary index on {self.bucket}.{self.scope}.{self.collect}")
-            cluster.query(index_query)
-            print("Primary index created successfully!")
-            
-        except Exception as e:
-            if "already exists" in str(e).lower():
-                print("Primary index already exists.")
-            else:
-                print(f"Error creating primary index: {e}")
-                import traceback
-                traceback.print_exc()
-
-    def create_session_id_index(self) -> None:
-        """
-        Create an index on session_id for better query performance.
-        """
-        cluster = Cluster.connect(
-            self.endpoint,
-            ClusterOptions(PasswordAuthenticator(self.user, self.password)))
-        
-        try:
-            # Create index on session_id
-            index_query = f"""
-                CREATE INDEX idx_session_id ON `{self.bucket}`.`{self.scope}`.`{self.collect}` (session_id)
-                USING GSI
-                WITH {{"defer_build": false}};
-                """
-            
-            print(f"Creating session_id index on {self.bucket}.{self.scope}.{self.collect}")
-            cluster.query(index_query)
-            print("Session ID index created successfully!")
-            
-        except Exception as e:
-            if "already exists" in str(e).lower():
-                print("Session ID index already exists.")
-            else:
-                print(f"Error creating session_id index: {e}")
-                import traceback
-                traceback.print_exc()
 
 if __name__ == "__main__":
+
     yabadabadu = QueryDB()
-    
-    # First, ensure we have the required indexes
-    print("Creating indexes if they don't exist...")
-    yabadabadu.create_primary_index()
-    yabadabadu.create_session_id_index()
-    
-    # Now test the query
-    print("\nTesting query...")
-    yaba = yabadabadu.get_requests_by_ids("776176500", 5)
+    yaba = yabadabadu.get_requests_by_ids(776176500, 5)
     for row in yaba:
         print(row)
