@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  IconCreditCard,
+  // IconCreditCard,
   IconDotsVertical,
   IconLogout,
   IconMoon,
-  IconNotification,
+  // IconNotification,
   IconSun,
-  IconUserCircle,
+  // IconUserCircle,
 } from "@tabler/icons-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -100,7 +100,7 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
@@ -111,7 +111,7 @@ export function NavUser() {
               <DropdownMenuItem>
                 <IconNotification />
                 Notifications
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem onClick={toggleTheme}>
                 {theme === "dark" ? <IconSun /> : <IconMoon />}
                 Toggle Theme
