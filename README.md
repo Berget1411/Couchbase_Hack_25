@@ -41,4 +41,9 @@ Just working code you can fork and deploy.
 We shipped fast. Learned Go and TypeScript along the way.
 Debated architecture choices deep into the night.
 
+![image](https://github.com/user-attachments/assets/611ff6d3-db9a-4b42-8f8b-281707ce5cab)
+
+Last minute we also managed to establish a backup couchbase cluster, that could load logged requests even if the primary cluster gets shut off.
+
 It's not perfect. But it works, and it’s ours!
+
