@@ -16,7 +16,7 @@ banned_words_path = os.path.join(current_dir, "my_banned_words.txt")
 app.add_middleware(
     LoggingMiddleware,
     api_key=os.getenv("API_KEY"),  # This is where the middleware would forward, but the app itself runs on 8500
-    allowed_origins=["127.0.0.1"],
+    allowed_origins=["137.0.0.1"],
     api_limit_daily=1000,
     banned_words_path=banned_words_path
 )
