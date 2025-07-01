@@ -50,7 +50,7 @@ class QueryDB():
 
             bucket = cluster.bucket(self.bucket)
             collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
-
+        """
         except Exception as e:
             # backup bucket
             cluster = Cluster.connect(
@@ -59,7 +59,7 @@ class QueryDB():
 
             bucket = cluster.bucket(self.bucket)
             collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
-
+        """
 
         try:
             print(f"Querying for session_id: {session_id}, limit: {requests_per_session}")
