@@ -86,7 +86,7 @@ async def submit_schema(payload: Dict[str, Any]):
         print("SENDING")
 
         cluster = Cluster(endpoint, options) # type: ignore
-
+        
         # Wait until the cluster is ready for use.
         cluster.wait_until_ready(timedelta(seconds=5))
 
