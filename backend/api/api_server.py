@@ -85,8 +85,6 @@ async def submit_schema(payload: Dict[str, Any]):
     try:
         print("SENDING")
 
-        while True:
-            raise KeyError
         cluster = Cluster(endpoint, options) # type: ignore
 
         # Wait until the cluster is ready for use.
