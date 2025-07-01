@@ -14,7 +14,13 @@ import { motion } from "framer-motion";
 export function Features() {
   return (
     <div className='relative mx-auto w-full max-w-7xl'>
-      <div className='px-4 py-12 sm:px-6 sm:py-16 lg:py-24 lg:px-8'>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        viewport={{ once: true }}
+        className='px-4 py-12 sm:px-6 sm:py-16 lg:py-24 lg:px-8'
+      >
         <BentoGrid className='mx-auto md:auto-rows-[20rem]'>
           {items.map((item, i) => (
             <BentoGridItem
@@ -27,7 +33,7 @@ export function Features() {
             />
           ))}
         </BentoGrid>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -41,10 +47,6 @@ const SkeletonOne = () => {
     animate: {
       x: 10,
       scale: 1.02,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut",
-      },
     },
   };
   const variantsSecond = {
@@ -55,10 +57,6 @@ const SkeletonOne = () => {
     animate: {
       x: -10,
       scale: 1.02,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut",
-      },
     },
   };
 
@@ -130,6 +128,7 @@ const SkeletonOne = () => {
             <motion.div
               key={index}
               variants={isEven ? variants : variantsSecond}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
               className={`flex flex-row rounded-lg border border-neutral-100 dark:border-white/[0.1] p-2 items-center space-x-2 bg-white/60 dark:bg-black/20 backdrop-blur-sm shadow-sm ${
                 isEven ? "" : "ml-4"
               }`}
