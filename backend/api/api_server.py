@@ -47,6 +47,9 @@ app.add_middleware(
 # Couchbase connection
 endpoint = os.getenv("CB_CONNECT_STRING")
 backup_endpoint = os.getenv("BACKUP_CONNECT_STRING")
+local_endpoint = os.getenv("CB_CONNECT_LOCAL")
+local_password = "easypass"
+local_user = "Administrator"
 cb_username = os.getenv("CB_USER")
 cb_password = os.getenv("CB_PASSWORD")
 cb_bucketname = os.getenv("BUCKET_NAME")
@@ -77,6 +80,7 @@ async def submit_schema(payload: Dict[str, Any]):
     
     print(payload)
     print(cb_username, cb_password, cb_bucketname, cb_scope, cb_collection)
+    
     auth = PasswordAuthenticator(cb_username, cb_password) # type: ignore
 
     options = ClusterOptions(auth)
@@ -84,8 +88,12 @@ async def submit_schema(payload: Dict[str, Any]):
 
     try:
         print("SENDING")
+        auth = PasswordAuthenticator(local_user, local_password) # type: ignore
 
-        cluster = Cluster(endpoint, options) # type: ignore
+        options = ClusterOptions(auth)
+        options.apply_profile("wan_development")
+
+        cluster = Cluster(local_endpoint, options) # type: ignore
         
         # Wait until the cluster is ready for use.
         cluster.wait_until_ready(timedelta(seconds=5))
@@ -128,25 +136,51 @@ async def submit_schema(payload: Dict[str, Any]):
         """
         
     except Exception as e:
-        # backup endpoint
-        print("SENDING")
-        cluster = Cluster(backup_endpoint, options) # type: ignore
-
-        # Wait until the cluster is ready for use.
-        cluster.wait_until_ready(timedelta(seconds=5))
-
-        # Get a reference to our bucket
-        cb = cluster.bucket(cb_bucketname)
-
-        # Get a reference to our collection
-        cb_coll = cb.scope(cb_scope).collection(cb_collection) # type: ignore
-
-        # Simple K-V operation - to create a document with specific ID
         try:
-            result = cb_coll.insert(key, payload)
-            print("\nCreate document success. CAS: ", result.cas)
-        except CouchbaseException as e:
-            print(e)
+            # main cloud
+            print("SENDING")
+            cluster = Cluster(endpoint, options) # type: ignore
+
+            # Wait until the cluster is ready for use.
+            cluster.wait_until_ready(timedelta(seconds=5))
+
+            # Get a reference to our bucket
+            cb = cluster.bucket(cb_bucketname)
+
+            # Get a reference to our collection
+            cb_coll = cb.scope(cb_scope).collection(cb_collection) # type: ignore
+
+            # Simple K-V operation - to create a document with specific ID
+            try:
+                result = cb_coll.insert(key, payload)
+                print("\nCreate document success. CAS: ", result.cas)
+            except CouchbaseException as e:
+                print(e)
+
+        except Exception as e:
+            ### Backup Cloud
+
+            # backup endpoint
+            print("SENDING")
+            cluster = Cluster(backup_endpoint, options) # type: ignore
+
+            # Wait until the cluster is ready for use.
+            cluster.wait_until_ready(timedelta(seconds=5))
+
+            # Get a reference to our bucket
+            cb = cluster.bucket(cb_bucketname)
+
+            # Get a reference to our collection
+            cb_coll = cb.scope(cb_scope).collection(cb_collection) # type: ignore
+
+            # Simple K-V operation - to create a document with specific ID
+            try:
+                result = cb_coll.insert(key, payload)
+                print("\nCreate document success. CAS: ", result.cas)
+            except CouchbaseException as e:
+                print(e)
+
+
 
 
 @app.post("/api/auth/validate")

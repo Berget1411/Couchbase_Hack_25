@@ -23,6 +23,11 @@ class QueryDB():
         
         self.endpoint = os.getenv("CB_CONNECT_STRING")
         self.endpoint_backup = os.getenv("BACKUP_CONNECT_STRING")
+
+        self.local_endpoint = os.getenv("CB_CONNECT_LOCAL")
+        self.local_password = "easypass"
+        self.local_user = "Administrator"
+
         self.user = os.getenv("CB_USER")
         self.password = os.getenv("CB_PASSWORD")
         self.bucket = os.getenv("BUCKET_NAME")
@@ -61,13 +66,24 @@ class QueryDB():
                 collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
             """
         except Exception as e:
-            # Backup DB
-            cluster = Cluster.connect(
-            self.endpoint_backup,
-            ClusterOptions(PasswordAuthenticator(self.user, self.password))) # type: ignore
+            try:
+                # Backup DB
+                cluster = Cluster.connect(
+                self.endpoint_backup,
+                ClusterOptions(PasswordAuthenticator(self.user, self.password))) # type: ignore
 
-            bucket = cluster.bucket(self.bucket)
-            collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
+                bucket = cluster.bucket(self.bucket)
+                collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
+
+            except Exception as e:
+                # local DB
+                cluster = Cluster.connect(
+                self.local_endpoint,
+                ClusterOptions(PasswordAuthenticator(self.local_user, self.local_password))) # type: ignore
+
+                bucket = cluster.bucket(self.bucket)
+                collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
+
 
         try:
             print(f"Querying for session_id: {session_id}, limit: {requests_per_session}")
