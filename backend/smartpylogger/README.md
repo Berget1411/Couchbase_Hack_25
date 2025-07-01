@@ -52,7 +52,7 @@ Special thanks goes out to the Couchbase team and AWS for sponsoring this projec
 ## Installation
 
 ```bash
-pip install smartpylogger .
+pip install smartpylogger
 ```
 
 ## Usage
@@ -66,11 +66,18 @@ app = FastAPI()
 # Add your middleware
 app.add_middleware(
     LoggingMiddleware,
-    api_key="YOUR_API_KEY",
-    allowed_origins=["IP", ...]
+    api_key="YOUR_API_KEY", # Get an api key and 10 free credits on our landing page!
+    allowed_origins=["IP", ...], # Origins you want to allow, CORS-style [*] not supported yet
+    censored_words="words.txt", # Path to csv-style words you would liked flagged,
+                                # in case they are found in the request body
     )
 ```
 
 ## What it logs:
 
-- **Request details**: Nothing yet
+- Time
+- Request Body (Contents)
+- Request Type (POST/GET)
+- Sender IP-address
+- Flag (1 if flagged for censorship, 2 if blocked origin)
+- App name (keep your apps seperate - all in one place)

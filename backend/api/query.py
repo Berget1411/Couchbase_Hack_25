@@ -21,7 +21,8 @@ load_dotenv()
 class QueryDB():
     def __init__(self):
         
-        self.endpoint = "couchbases://cb.82kuz4rgjdzyhlh.cloud.couchbase.com"
+        self.endpoint = os.getenv("CB_CONNECT_STRING")
+        self.endpoint_backup = os.getenv("BACKUP_CONNECT_STRING")
         self.user = os.getenv("CB_USER")
         self.password = os.getenv("CB_PASSWORD")
         self.bucket = os.getenv("BUCKET_NAME")
@@ -41,11 +42,24 @@ class QueryDB():
             List of request dictionaries with full data
         """
 
-        cluster = Cluster.connect(
+        try:
+            # Main try
+            cluster = Cluster.connect(
             self.endpoint,
             ClusterOptions(PasswordAuthenticator(self.user, self.password))) # type: ignore
-        bucket = cluster.bucket(self.bucket)
-        collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
+
+            bucket = cluster.bucket(self.bucket)
+            collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
+
+        except Exception as e:
+            # backup bucket
+            cluster = Cluster.connect(
+                self.endpoint_backup,
+                ClusterOptions(PasswordAuthenticator(self.user, self.password))) # type: ignore
+
+            bucket = cluster.bucket(self.bucket)
+            collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
+
 
         try:
             print(f"Querying for session_id: {session_id}, limit: {requests_per_session}")
@@ -134,7 +148,6 @@ class QueryDB():
             import traceback
             traceback.print_exc()
             return []
-
 
     def get_all_user_requests(self, user_id: str, limit: int = 100) -> list[dict[str, Any]]: # type: ignore
         pass
