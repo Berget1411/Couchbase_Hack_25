@@ -19,7 +19,7 @@ export function AboutHeader() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className='text-4xl font-bold mb-2'
+          className='text-4xl font-bold mb-2 text-foreground'
         >
           Our Story
         </motion.h1>
@@ -27,7 +27,7 @@ export function AboutHeader() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className='text-gray-400'
+          className='text-muted-foreground'
         >
           Built in under two weeks during the Couchbase x AWS x Cillers
           hackathon
@@ -53,7 +53,7 @@ export function AboutHeader() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Button variant='link' className='px-0 text-white'>
+            <Button variant='link' className='px-0 text-foreground'>
               <BookOpen className='w-4 h-4 rounded' />
               Documentation
             </Button>
@@ -65,7 +65,7 @@ export function AboutHeader() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Button variant='link' className='px-0 text-white'>
+            <Button variant='link' className='px-0 text-foreground'>
               <FaGithub className='w-4 h-4 rounded-full' />
               GitHub
             </Button>
@@ -77,7 +77,7 @@ export function AboutHeader() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Button variant='link' className='px-0 text-white'>
+            <Button variant='link' className='px-0 text-foreground'>
               <FaDiscord className='w-4 h-4 rounded' />
               Community
             </Button>

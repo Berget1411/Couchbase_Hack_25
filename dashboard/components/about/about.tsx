@@ -13,7 +13,7 @@ export function About() {
   return (
     <>
       <HeroBackground showSpotlight={false} />
-      <div className='min-h-screen text-white'>
+      <div className='min-h-screen text-foreground'>
         {/* Main Content */}
         <div className='relative min-h-screen overflow-hidden'>
           {/* Left Section - Our Story (only shown when not in full story mode) */}
@@ -38,7 +38,7 @@ export function About() {
                 animate={{ opacity: 1, scaleY: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className='hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-gray-800 transform -translate-x-1/2 z-20'
+                className='hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-border transform -translate-x-1/2 z-20'
               />
             )}
           </AnimatePresence>
@@ -51,7 +51,7 @@ export function About() {
               width: showFullStory ? "100%" : "50%",
             }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className='absolute right-0 top-0 h-full bg-black/40'
+            className='absolute right-0 top-0 h-full bg-background/90'
             style={{ width: showFullStory ? "100%" : "50%" }}
           >
             <div className='px-6 py-16 h-full overflow-hidden'>

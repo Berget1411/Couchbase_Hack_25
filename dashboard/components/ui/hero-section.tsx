@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Button } from "./button";
 import { Badge } from "./badge";
-import { Copy, Check, Github } from "lucide-react";
-import { FaPython } from "react-icons/fa";
+import { Copy, Check } from "lucide-react";
+import { FaPython, FaGithub } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 export function HeroSection() {
@@ -56,18 +56,22 @@ app.add_middleware(
 
             <div className='mt-6 sm:mt-8'>
               <div className='mb-4 sm:mb-6 flex items-center justify-center lg:justify-start'>
-                <div className='flex items-center w-full max-w-sm sm:max-w-md lg:max-w-xl rounded bg-[#18181b] border border-[#232326] px-2 sm:px-4 py-2 shadow text-xs sm:text-sm font-mono overflow-hidden'>
+                <div className='flex items-center w-full max-w-sm sm:max-w-md lg:max-w-xl rounded bg-muted border border-border px-2 sm:px-4 py-2 shadow text-xs sm:text-sm font-mono overflow-hidden'>
                   <div className='flex items-center min-w-0 flex-1'>
-                    <span className='text-[#4ec9b0]'>git</span>
-                    <span className='text-[#d4bfff]'>:(</span>
-                    <span className='text-[#e06c75]'>main</span>
-                    <span className='text-[#d4bfff]'>)</span>
-                    <span className='text-[#e5c07b] mx-1'>x</span>
-                    <span className='text-[#d4d4d4] hidden sm:inline'>
+                    <span className='text-emerald-600 dark:text-emerald-400'>
+                      git
+                    </span>
+                    <span className='text-muted-foreground'>:(</span>
+                    <span className='text-red-600 dark:text-red-400'>main</span>
+                    <span className='text-muted-foreground'>)</span>
+                    <span className='text-yellow-600 dark:text-yellow-400 mx-1'>
+                      x
+                    </span>
+                    <span className='text-foreground hidden sm:inline'>
                       pip install
                     </span>
-                    <span className='text-[#d4d4d4] sm:hidden'>pip</span>
-                    <span className='ml-1 text-[#b5cea8] truncate'>
+                    <span className='text-foreground sm:hidden'>pip</span>
+                    <span className='ml-1 text-blue-600 dark:text-blue-400 truncate'>
                       smartpylogger
                     </span>
                   </div>
@@ -75,8 +79,8 @@ app.add_middleware(
                     <span className='inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded bg-blue-500'>
                       <FaPython className='h-3 w-3 sm:h-4 sm:w-4' />
                     </span>
-                    <span className='inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded bg-black'>
-                      <Github className='h-3 w-3 sm:h-4 sm:w-4' />
+                    <span className='inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded bg-foreground'>
+                      <FaGithub className='h-3 w-3 sm:h-4 sm:w-4 text-background' />
                     </span>
                   </div>
                 </div>
