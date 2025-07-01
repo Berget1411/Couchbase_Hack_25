@@ -75,3 +75,11 @@ export class GitHubService {
 }
 
 export type { GitHubRepo };
+
+export const getStars = async () => {
+  const response = await fetch(
+    "https://api.github.com/repos/Berget1411/Couchbase_Hack_25"
+  );
+  const data = await response.json();
+  return data.stargazers_count;
+};

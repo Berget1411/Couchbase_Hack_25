@@ -340,30 +340,27 @@ const SkeletonThree = () => {
         repeat: Infinity,
         repeatType: "reverse",
       }}
-      className='flex flex-1 w-full h-full dark:bg-dot-white/[0.2] rounded-lg bg-dot-black/[0.2] flex-col p-3'
-      style={{
-        background:
-          "linear-gradie1nt(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)",
-        backgroundSize: "400% 400%",
-      }}
+      className='flex flex-1 w-full h-full dark:bg-dot-white/[0.2] rounded-lg bg-dot-black/[0.2] flex-col p-3 bg-gradient-to-br from-primary/20 via-primary/10 to-secondary/20'
     >
       {/* Dashboard Header */}
       <div className='flex justify-between items-center mb-3'>
         <div className='flex items-center space-x-2'>
-          <span className='text-white text-sm font-semibold'>API Requests</span>
+          <span className='text-foreground text-sm font-semibold'>
+            API Requests
+          </span>
           <div className='flex items-center space-x-1'>
             <div className='h-2 w-2 bg-green-400 rounded-full animate-pulse' />
-            <span className='text-white text-xs'>Live</span>
+            <span className='text-foreground text-xs'>Live</span>
           </div>
         </div>
-        <div className='text-white text-xs bg-white/20 px-2 py-1 rounded'>
+        <div className='text-foreground text-xs bg-muted/80 px-2 py-1 rounded'>
           1,247 total
         </div>
       </div>
 
       {/* Table Header */}
-      <div className='bg-white/20 rounded-t-lg px-2 py-1 backdrop-blur-sm'>
-        <div className='flex items-center space-x-2 text-white text-xs font-medium'>
+      <div className='bg-muted/60 rounded-t-lg px-2 py-1 backdrop-blur-sm border border-border/50'>
+        <div className='flex items-center space-x-2 text-foreground text-xs font-medium'>
           <span className='w-12'>Time</span>
           <span className='w-10'>Method</span>
           <span className='flex-1'>Endpoint</span>
@@ -372,25 +369,25 @@ const SkeletonThree = () => {
       </div>
 
       {/* Table Rows */}
-      <div className='bg-white/10 rounded-b-lg backdrop-blur-sm flex-1 overflow-hidden flex flex-col justify-center'>
+      <div className='bg-card/80 rounded-b-lg backdrop-blur-sm flex-1 overflow-hidden flex flex-col justify-center border-x border-b border-border/50'>
         {[
           { time: "14:32", method: "GET", endpoint: "/api/users", flag: 0 },
           { time: "14:31", method: "POST", endpoint: "/api/auth", flag: 0 },
         ].map((row, i) => (
           <div
             key={i}
-            className='flex items-center space-x-2 px-2 py-1 text-white text-xs border-b border-white/10 last:border-b-0'
+            className='flex items-center space-x-2 px-2 py-1 text-foreground text-xs border-b border-border/30 last:border-b-0'
           >
             <span className='w-12 font-mono'>{row.time}</span>
             <span
-              className={`w-10 font-mono text-xs px-1 rounded ${
+              className={`w-10 font-mono text-xs px-1 rounded text-white ${
                 row.method === "GET"
-                  ? "bg-green-500/30"
+                  ? "bg-green-500"
                   : row.method === "POST"
-                  ? "bg-blue-500/30"
+                  ? "bg-blue-500"
                   : row.method === "PUT"
-                  ? "bg-purple-500/30"
-                  : "bg-red-500/30"
+                  ? "bg-purple-500"
+                  : "bg-red-500"
               }`}
             >
               {row.method}
@@ -398,7 +395,9 @@ const SkeletonThree = () => {
             <span className='flex-1 font-mono truncate'>{row.endpoint}</span>
             <span
               className={`w-8 text-center font-bold ${
-                row.flag === 0 ? "text-green-300" : "text-red-300"
+                row.flag === 0
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400"
               }`}
             >
               {row.flag}
@@ -408,11 +407,17 @@ const SkeletonThree = () => {
       </div>
 
       {/* Pagination */}
-      <div className='flex justify-between items-center mt-2 text-white text-xs'>
-        <span className='bg-white/20 px-2 py-1 rounded'>Page 1 of 124</span>
+      <div className='flex justify-between items-center mt-2 text-foreground text-xs'>
+        <span className='bg-muted/60 px-2 py-1 rounded border border-border/50'>
+          Page 1 of 124
+        </span>
         <div className='flex space-x-1'>
-          <div className='bg-white/20 px-2 py-1 rounded'>‹</div>
-          <div className='bg-white/20 px-2 py-1 rounded'>›</div>
+          <div className='bg-muted/60 px-2 py-1 rounded border border-border/50 hover:bg-muted/80 cursor-pointer'>
+            ‹
+          </div>
+          <div className='bg-muted/60 px-2 py-1 rounded border border-border/50 hover:bg-muted/80 cursor-pointer'>
+            ›
+          </div>
         </div>
       </div>
     </motion.div>

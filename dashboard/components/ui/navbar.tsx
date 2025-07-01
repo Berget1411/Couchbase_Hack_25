@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "./button";
-import { Target, Github, Sun, Menu, X } from "lucide-react";
+import { Target, Sun, Menu, X } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
 import {
   Drawer,
   DrawerContent,
@@ -14,10 +15,28 @@ import {
 } from "./drawer";
 import { useTheme } from "next-themes";
 import { authClient } from "@/lib/auth-client";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+
+const navLinks = [
+  {
+    label: "Home",
+    href: "/",
+  },
+  {
+    label: "Docs",
+    href: "/docs",
+  },
+  {
+    label: "About",
+    href: "/about",
+  },
+];
+
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
-
+  const pathname = usePathname();
   const { data: session, isPending } = authClient.useSession();
 
   return (
@@ -34,30 +53,18 @@ export function Navbar() {
 
         {/* Desktop Navigation Links */}
         <nav className='hidden md:flex items-center space-x-6 text-sm font-medium'>
-          <Link
-            className='transition-colors hover:text-foreground/80 text-foreground/60'
-            href='/docs'
-          >
-            docs
-          </Link>
-          <Link
-            className='transition-colors hover:text-foreground/80 text-foreground/60'
-            href='/changelogs'
-          >
-            changelogs
-          </Link>
-          <Link
-            className='transition-colors hover:text-foreground/80 text-foreground/60'
-            href='/about-us'
-          >
-            about
-          </Link>
-          <Link
-            className='transition-colors hover:text-foreground/80 text-foreground/60'
-            href='/community'
-          >
-            community
-          </Link>
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              className={cn(
+                "transition-colors hover:text-foreground/80 text-foreground/60",
+                pathname === link.href && "text-foreground"
+              )}
+              href={link.href}
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
         {/* Spacer */}
@@ -68,11 +75,11 @@ export function Navbar() {
           {/* GitHub Link */}
           <Button variant='ghost' size='sm' asChild>
             <Link
-              href='https://github.com/smartpylogger/smartpylogger'
+              href='https://github.com/Berget1411/Couchbase_Hack_25'
               target='_blank'
               rel='noreferrer'
             >
-              <Github className='h-4 w-4' />
+              <FaGithub className='h-4 w-4' />
               <span className='sr-only'>GitHub</span>
             </Link>
           </Button>
@@ -95,14 +102,14 @@ export function Navbar() {
             asChild
           >
             {isPending ? (
-              <span className='text-white'>Loading...</span>
+              <span>Loading...</span>
             ) : session ? (
               <Link href='/dashboard'>
-                <span className='text-white'>Dashboard</span>
+                <span>Dashboard</span>
               </Link>
             ) : (
               <Link href='/login'>
-                <span className='text-white'>Sign In</span>
+                <span>Sign In</span>
               </Link>
             )}
           </Button>
@@ -164,14 +171,14 @@ export function Navbar() {
                       asChild
                     >
                       {isPending ? (
-                        <span className='text-white'>Loading...</span>
+                        <span>Loading...</span>
                       ) : session ? (
                         <Link href='/dashboard'>
-                          <span className='text-white'>Dashboard</span>
+                          <span>Dashboard</span>
                         </Link>
                       ) : (
                         <Link href='/login'>
-                          <span className='text-white'>Sign In</span>
+                          <span>Sign In</span>
                         </Link>
                       )}
                     </Button>

@@ -21,7 +21,7 @@ export function ProjectSummary({ onReadMore }: ProjectSummaryProps) {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className='text-sm text-gray-400 mb-4'
+        className='text-sm text-muted-foreground mb-4'
       >
         Stockholm Hackathon // July 1st, 2025
       </motion.div>
@@ -30,7 +30,7 @@ export function ProjectSummary({ onReadMore }: ProjectSummaryProps) {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
-        className='text-2xl font-bold mb-4'
+        className='text-2xl font-bold mb-4 text-foreground'
       >
         SmartPyLogger: A Developer Tool Born from Passion
       </motion.h2>
@@ -39,7 +39,7 @@ export function ProjectSummary({ onReadMore }: ProjectSummaryProps) {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.5 }}
-        className='text-gray-300 mb-4'
+        className='text-foreground/80 mb-4'
       >
         Built by three KTH students during the Couchbase x AWS x Cillers
         hackathon. We believe in &quot;use-case over tech&quot; but we love
@@ -58,7 +58,7 @@ export function ProjectSummary({ onReadMore }: ProjectSummaryProps) {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.7 }}
-        className='text-gray-400 text-sm mb-4'
+        className='text-muted-foreground text-sm mb-4'
       >
         SmartPyLogger is a ridiculously simple tool for Python web developers.
         FastAPI request logging with full history, AI-backed analysis, CORS
@@ -74,7 +74,11 @@ export function ProjectSummary({ onReadMore }: ProjectSummaryProps) {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <Button variant='link' className='px-0 text-white' onClick={onReadMore}>
+        <Button
+          variant='link'
+          className='px-0 text-foreground'
+          onClick={onReadMore}
+        >
           Read More
         </Button>
       </motion.div>

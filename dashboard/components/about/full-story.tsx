@@ -45,12 +45,12 @@ export function FullStory({ onBack }: FullStoryProps) {
       className='h-full overflow-y-auto'
     >
       <div className='max-w-4xl mx-auto'>
-        <div className='text-sm text-gray-400 mb-4 flex items-center gap-2'>
+        <div className='text-sm text-muted-foreground mb-4 flex items-center gap-2'>
           <Button
             variant='ghost'
             size='sm'
             onClick={onBack}
-            className='p-1 h-auto text-gray-400 hover:text-white'
+            className='p-1 h-auto text-muted-foreground hover:text-foreground'
           >
             <ArrowLeft className='w-4 h-4' />
           </Button>
@@ -59,50 +59,50 @@ export function FullStory({ onBack }: FullStoryProps) {
 
         {loading && (
           <div className='text-center py-8'>
-            <div className='text-gray-400'>Loading story...</div>
+            <div className='text-muted-foreground'>Loading story...</div>
           </div>
         )}
 
         {error && (
           <div className='text-center py-8'>
-            <div className='text-red-400'>Error: {error}</div>
+            <div className='text-destructive'>Error: {error}</div>
           </div>
         )}
 
         {!loading && !error && (
-          <div className='prose prose-invert prose-lg max-w-none'>
+          <div className='prose prose-neutral dark:prose-invert prose-lg max-w-none'>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
                 h1: ({ children }) => (
-                  <h1 className='text-3xl font-bold mb-8 text-white'>
+                  <h1 className='text-3xl font-bold mb-8 text-foreground'>
                     {children}
                   </h1>
                 ),
                 h2: ({ children }) => (
-                  <h2 className='text-xl font-semibold mb-6 mt-8 text-gray-200'>
+                  <h2 className='text-xl font-semibold mb-6 mt-8 text-foreground/90'>
                     {children}
                   </h2>
                 ),
                 h3: ({ children }) => (
-                  <h3 className='text-lg font-semibold mb-3 text-gray-300'>
+                  <h3 className='text-lg font-semibold mb-3 text-foreground/80'>
                     {children}
                   </h3>
                 ),
                 p: ({ children }) => (
-                  <p className='text-gray-400 leading-relaxed mb-6'>
+                  <p className='text-muted-foreground leading-relaxed mb-6'>
                     {children}
                   </p>
                 ),
                 ul: ({ children }) => (
-                  <ul className='text-gray-400 space-y-2 ml-6 mb-6 leading-relaxed list-disc'>
+                  <ul className='text-muted-foreground space-y-2 ml-6 mb-6 leading-relaxed list-disc'>
                     {children}
                   </ul>
                 ),
                 li: ({ children }) => (
-                  <li className='text-gray-400'>{children}</li>
+                  <li className='text-muted-foreground'>{children}</li>
                 ),
-                hr: () => <hr className='border-gray-700 my-8' />,
+                hr: () => <hr className='border-border my-8' />,
               }}
             >
               {content}
