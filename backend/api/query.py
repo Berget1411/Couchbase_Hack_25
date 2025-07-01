@@ -42,24 +42,32 @@ class QueryDB():
             List of request dictionaries with full data
         """
 
-        #try:
-        # Main try
-        cluster = Cluster.connect(
-        self.endpoint,
-        ClusterOptions(PasswordAuthenticator(self.user, self.password))) # type: ignore
-
-        bucket = cluster.bucket(self.bucket)
-        collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
-        """
-        except Exception as e:
-            # backup bucket
+        try:
+            # Main try
             cluster = Cluster.connect(
-                self.endpoint_backup,
-                ClusterOptions(PasswordAuthenticator(self.user, self.password))) # type: ignore
+            self.endpoint,
+            ClusterOptions(PasswordAuthenticator(self.user, self.password))) # type: ignore
 
             bucket = cluster.bucket(self.bucket)
             collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
-        """
+            """
+            except Exception as e:
+                # backup bucket
+                cluster = Cluster.connect(
+                    self.endpoint_backup,
+                    ClusterOptions(PasswordAuthenticator(self.user, self.password))) # type: ignore
+
+                bucket = cluster.bucket(self.bucket)
+                collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
+            """
+        except Exception as e:
+            # Backup DB
+            cluster = Cluster.connect(
+            self.endpoint_backup,
+            ClusterOptions(PasswordAuthenticator(self.user, self.password))) # type: ignore
+
+            bucket = cluster.bucket(self.bucket)
+            collection = bucket.scope(self.scope).collection(self.collect) # type: ignore
 
         try:
             print(f"Querying for session_id: {session_id}, limit: {requests_per_session}")
@@ -82,6 +90,7 @@ class QueryDB():
             print(result)
             print(result.rows())
             print(row for row in result)
+            
             json_list = [row for row in result]
             print(f"Structured query returned {len(json_list)} results")
             
