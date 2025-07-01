@@ -79,6 +79,9 @@ class QueryDB():
                 "number": requests_per_session
             }))
 
+            print(result)
+            print(result.rows())
+            print(row for row in result)
             json_list = [row for row in result]
             print(f"Structured query returned {len(json_list)} results")
             
