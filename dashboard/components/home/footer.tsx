@@ -1,10 +1,18 @@
+"use client";
 import { HoverBorderGradient } from "../ui/hover-border-gradient";
 import { Target } from "lucide-react";
+import { motion } from "framer-motion";
 export function Footer() {
   return (
     <footer className='relative z-10 w-full border-t border-neutral-200 py-12 dark:border-white/[0.1] sm:py-16 lg:py-24'>
       <div className='relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-        <div className='flex flex-col items-center justify-center space-y-4'>
+        <motion.div
+          className='flex flex-col items-center justify-center space-y-4'
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+        >
           <div className='flex items-center space-x-2'>
             <Target className='h-4 w-4  text-primary' />
             <span className='text-muted-foreground'>Own your logs</span>
@@ -30,7 +38,7 @@ export function Footer() {
               </span>
             </div>
           </HoverBorderGradient>
-        </div>
+        </motion.div>
       </div>
       <div className='absolute inset-0 flex items-center justify-center opacity-5 dark:opacity-[0.02]'>
         <Target className='h-96 w-96 text-neutral-950 dark:text-white  ' />
