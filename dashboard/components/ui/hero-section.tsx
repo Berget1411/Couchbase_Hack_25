@@ -6,6 +6,7 @@ import { Badge } from "./badge";
 import { Copy, Check } from "lucide-react";
 import { FaPython, FaGithub } from "react-icons/fa";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export function HeroSection() {
   const [copied, setCopied] = useState(false);
@@ -56,7 +57,7 @@ app.add_middleware(
 
             <div className='mt-6 sm:mt-8'>
               <div className='mb-4 sm:mb-6 flex items-center justify-center lg:justify-start'>
-                <div className='flex items-center w-full max-w-sm sm:max-w-md lg:max-w-xl rounded bg-muted border border-border px-2 sm:px-4 py-2 shadow text-xs sm:text-sm font-mono overflow-hidden'>
+                <div className='flex items-center w-full max-w-sm sm:max-w-md lg:max-w-xl rounded bg-muted/20 border border-border px-2 sm:px-4 py-2 shadow text-xs sm:text-sm font-mono overflow-hidden'>
                   <div className='flex items-center min-w-0 flex-1'>
                     <span className='text-emerald-600 dark:text-emerald-400'>
                       git
@@ -77,10 +78,14 @@ app.add_middleware(
                   </div>
                   <div className='flex items-center space-x-1 ml-2 flex-shrink-0'>
                     <span className='inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded bg-blue-500'>
-                      <FaPython className='h-3 w-3 sm:h-4 sm:w-4' />
+                      <Link href='https://pypi.org/project/smartpylogger/0.2.0/#description'>
+                        <FaPython className='h-3 w-3 sm:h-4 sm:w-4' />
+                      </Link>
                     </span>
                     <span className='inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded bg-foreground'>
-                      <FaGithub className='h-3 w-3 sm:h-4 sm:w-4 text-background' />
+                      <Link href='https://github.com/Berget1411/Couchbase_Hack_25'>
+                        <FaGithub className='h-3 w-3 sm:h-4 sm:w-4 text-background' />
+                      </Link>
                     </span>
                   </div>
                 </div>

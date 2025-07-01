@@ -14,7 +14,7 @@ export function AnnouncementBanner() {
         </p>
         <div className='hidden sm:block h-4 w-px bg-border/40' />
         <Link
-          href='/about-us'
+          href='/about'
           className='flex items-center text-xs sm:text-sm font-medium text-foreground/80 hover:text-foreground transition-colors text-primary'
         >
           Read more <ArrowRight className='ml-1 h-3 w-3' />
