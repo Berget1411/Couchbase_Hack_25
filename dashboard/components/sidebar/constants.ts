@@ -1,6 +1,6 @@
 import {
   IconDashboard,
-  IconSparkles,
+  // IconSparkles,
   IconFileText,
   IconCamera,
   IconFileDescription,
@@ -22,11 +22,11 @@ export const data = {
       url: "/dashboard",
       icon: IconDashboard,
     },
-    {
-      title: "Ask AI",
-      url: "#",
-      icon: IconSparkles,
-    },
+    // {
+    //   title: "Ask AI",
+    //   url: "#",
+    //   icon: IconSparkles,
+    // },
     {
       title: "Documentation",
       url: "#",

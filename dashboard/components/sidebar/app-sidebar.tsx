@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { IconInnerShadowTop, IconFolder } from "@tabler/icons-react";
+import { IconFolder } from "@tabler/icons-react";
+import { Target } from "lucide-react";
 
 import {
   NavApps,
   NavMain,
-  NavSecondary,
+  // NavSecondary,
   NavUser,
   NavCreditsOverview,
 } from "@/components/sidebar";
@@ -22,6 +23,7 @@ import {
 
 import { useGetAppSessionsByUserId } from "@/hooks/api/dashboard/use-app-session";
 import { data } from "./constants";
+import Link from "next/link";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: appSessions } = useGetAppSessionsByUserId();
@@ -35,10 +37,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className='data-[slot=sidebar-menu-button]:!p-1.5'
             >
-              <a href='#'>
-                <IconInnerShadowTop className='!size-5' />
-                <span className='text-base font-semibold'>Couchbase. Inc</span>
-              </a>
+              <Link href='/dashboard'>
+                <Target className='!size-5 text-primary' />
+                <span className='text-base font-semibold'>SmartPyLogger</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -57,8 +59,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         />
 
         <NavCreditsOverview />
-
-        <NavSecondary items={data.navSecondary} className='mt-auto' />
+        {/* 
+        <NavSecondary items={data.navSecondary} className='mt-auto' /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
